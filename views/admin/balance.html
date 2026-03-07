@@ -14,7 +14,7 @@
 
 body{
 background:#f4f7fb;
-font-family:Inter;
+font-family:Inter, sans-serif;
 }
 
 .card{
@@ -40,7 +40,7 @@ Quản lý số dư user
 <div class="grid gap-4">
 
 <input id="username"
-placeholder="Username"
+placeholder="Username hoặc Email"
 class="border p-3 rounded">
 
 <input id="amount"
@@ -67,12 +67,14 @@ class="border p-3 rounded">
 
 <button onclick="submitBalance()"
 class="bg-blue-600 text-white py-3 rounded">
+
 Cập nhật
+
 </button>
 
 </div>
 
-<div id="msg" class="mt-4 text-sm"></div>
+<div id="msg" class="mt-4 text-sm text-blue-600"></div>
 
 </div>
 
@@ -90,25 +92,11 @@ Lịch sử giao dịch
 
 <tr>
 
-<th class="text-left py-2">
-User
-</th>
-
-<th>
-Số tiền
-</th>
-
-<th>
-Loại
-</th>
-
-<th>
-Lý do
-</th>
-
-<th>
-Thời gian
-</th>
+<th class="text-left py-2">User</th>
+<th>Số tiền</th>
+<th>Loại</th>
+<th>Lý do</th>
+<th>Thời gian</th>
 
 </tr>
 
@@ -124,7 +112,9 @@ Thời gian
 
 const token = localStorage.getItem("token")
 
-/* ADD / SUB BALANCE */
+/* =========================
+   ADD / SUB BALANCE
+========================= */
 
 async function submitBalance(){
 
@@ -134,6 +124,13 @@ const type = document.getElementById("type").value
 const reason = document.getElementById("reason").value
 
 const msg = document.getElementById("msg")
+
+if(!username || !amount){
+msg.innerText = "Thiếu username hoặc số tiền"
+return
+}
+
+try{
 
 const res = await fetch("/api/admin/manual-balance",{
 
@@ -159,11 +156,21 @@ msg.innerText = data.message || data.error
 
 loadLogs()
 
+}catch(e){
+
+msg.innerText = "Lỗi server"
+
 }
 
-/* LOAD TRANSACTIONS */
+}
+
+/* =========================
+   LOAD TRANSACTIONS
+========================= */
 
 async function loadLogs(){
+
+try{
 
 const res = await fetch("/api/admin/transactions",{
 
@@ -187,15 +194,25 @@ tr.className="border-b"
 
 tr.innerHTML = `
 
-<td class="py-2">${l.userId}</td>
+<td class="py-2">
+${l.userId?.username || l.userId}
+</td>
 
-<td>${Number(l.amount).toLocaleString()} VND</td>
+<td>
+${Number(l.amount).toLocaleString()} VND
+</td>
 
-<td>${l.type}</td>
+<td>
+${l.type}
+</td>
 
-<td>${l.note}</td>
+<td>
+${l.note || ""}
+</td>
 
-<td>${new Date(l.createdAt).toLocaleString()}</td>
+<td>
+${new Date(l.createdAt).toLocaleString()}
+</td>
 
 `
 
@@ -203,7 +220,17 @@ table.appendChild(tr)
 
 })
 
+}catch(e){
+
+console.log("Load logs error")
+
 }
+
+}
+
+/* =========================
+   INIT
+========================= */
 
 loadLogs()
 
