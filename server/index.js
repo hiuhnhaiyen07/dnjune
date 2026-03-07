@@ -51,7 +51,7 @@ app.use("/api/reseller", resellerRoutes)
 /* HOME PAGE */
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/login.html"))
+  res.sendFile(path.join(__dirname, "../views/index.html"))
 })
 
 /* CRON */
