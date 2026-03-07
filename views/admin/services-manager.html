@@ -286,6 +286,11 @@ ${s.enabled
 
 <td class="space-x-2">
 
+<button onclick="editRate('${s._id}')"
+class="bg-yellow-500 text-white px-3 py-1 rounded">
+Edit
+</button>
+
 <button onclick="toggle('${s._id}')"
 class="bg-gray-800 text-white px-3 py-1 rounded">
 Toggle
@@ -355,6 +360,29 @@ load()
 
 }
 
+/* EDIT RATE */
+
+async function editRate(id){
+
+const rate=prompt("Nhập giá mới /1000")
+
+if(!rate) return
+
+await fetch("/api/admin/service-rate/"+id,{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+Authorization:"Bearer "+token
+},
+body:JSON.stringify({rate})
+})
+
+alert("Đã cập nhật giá")
+
+load()
+
+}
+
 /* SYNC API */
 
 async function sync(){
@@ -370,7 +398,7 @@ load()
 
 }
 
-/* TOGGLE SERVICE */
+/* TOGGLE */
 
 async function toggle(id){
 
