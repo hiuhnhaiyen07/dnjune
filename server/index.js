@@ -13,6 +13,7 @@ const paymentRoutes = require("./routes/payments")
 const adminRoutes = require("./routes/admin")
 const notificationRoutes=require("./routes/notifications")
 const ticketRoutes=require("./routes/tickets")
+const resellerRoutes=require("./routes/reseller")
 
 const app = express()
 
@@ -31,6 +32,7 @@ app.use("/api/payments", paymentRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/notifications",notificationRoutes)
 app.use("/api/tickets",ticketRoutes)
+app.use("/api/reseller",resellerRoutes)
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../views/login.html"))
