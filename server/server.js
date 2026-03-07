@@ -1,6 +1,7 @@
 const express = require("express")
 const mongoose = require("mongoose")
 const cors = require("cors")
+const path = require("path")
 
 const authRoutes = require("./routes/auth")
 const orderRoutes = require("./routes/orders")
@@ -10,10 +11,23 @@ const serviceRoutes = require("./routes/services")
 
 const app = express()
 
+/* =========================
+   MIDDLEWARE
+========================= */
+
 app.use(cors())
 app.use(express.json())
+app.use(express.urlencoded({extended:true}))
 
-app.use("/uploads", express.static("uploads"))
+/* =========================
+   STATIC FILES
+========================= */
+
+app.use("/uploads", express.static(path.join(__dirname,"uploads")))
+
+/* =========================
+   API ROUTES
+========================= */
 
 app.use("/api/auth", authRoutes)
 app.use("/api/orders", orderRoutes)
@@ -21,10 +35,32 @@ app.use("/api/payments", paymentRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/services", serviceRoutes)
 
-mongoose.connect(process.env.MONGO_URI)
+/* =========================
+   TEST ROUTE
+========================= */
 
-.then(()=>console.log("MongoDB connected"))
-.catch(err=>console.log(err))
+app.get("/",(req,res)=>{
+res.send("SMM Panel API running")
+})
+
+/* =========================
+   MONGODB
+========================= */
+
+mongoose.connect(process.env.MONGO_URI,{
+useNewUrlParser:true,
+useUnifiedTopology:true
+})
+.then(()=>{
+console.log("MongoDB connected")
+})
+.catch(err=>{
+console.log("MongoDB error:",err)
+})
+
+/* =========================
+   START SERVER
+========================= */
 
 const PORT = process.env.PORT || 3000
 
