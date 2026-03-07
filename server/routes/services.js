@@ -1,22 +1,13 @@
 const express = require("express")
-const Service = require("../models/Service")
 const auth = require("../middleware/auth")
+
+const services = require("../config/services")
 
 const router = express.Router()
 
-router.get("/", auth, async (req, res) => {
+router.get("/", auth, (req, res) => {
 
-  try {
-
-    const services = await Service.find({ enabled: true })
-
-    res.json(services)
-
-  } catch (err) {
-
-    res.status(500).json({ error: "Server error" })
-
-  }
+  res.json(services)
 
 })
 
