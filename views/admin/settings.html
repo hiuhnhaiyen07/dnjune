@@ -2,39 +2,203 @@
 <html lang="vi">
 
 <head>
+
 <meta charset="UTF-8">
-<title>Settings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Settings - SMM Panel</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:#f4f7fb;
+}
+
+.sidebar{
+background:#020617;
+}
+
+.card{
+background:white;
+border-radius:18px;
+box-shadow:0 10px 25px rgba(0,0,0,0.06);
+}
+
+#sidebar{
+transition:all .3s;
+}
+
+@media (max-width:768px){
+
+#sidebar{
+position:fixed;
+left:-260px;
+top:0;
+height:100%;
+z-index:50;
+}
+
+#sidebar.open{
+left:0;
+}
+
+}
+
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.4);
+display:none;
+z-index:40;
+}
+
+#overlay.show{
+display:block;
+}
+
+</style>
+
 </head>
 
-<body class="bg-gray-100 p-8">
+<body>
 
-<h1 class="text-2xl font-bold mb-6">
+<div id="overlay"></div>
+
+<div class="flex h-screen">
+
+<!-- SIDEBAR -->
+
+<div id="sidebar" class="sidebar w-64 text-white flex flex-col">
+
+<div class="p-6 text-2xl font-bold border-b border-gray-700">
+ADMIN PANEL
+</div>
+
+<nav class="flex-1 p-4 space-y-2">
+
+<a href="dashboard.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Dashboard
+</a>
+
+<a href="users.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Users
+</a>
+
+<a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Orders
+</a>
+
+<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Services
+</a>
+
+<a href="payments.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Deposits
+</a>
+
+<a href="profit.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Profit
+</a>
+
+<a href="logs.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Logs
+</a>
+
+<a href="settings.html" class="block px-4 py-3 rounded-lg bg-blue-600">
+Settings
+</a>
+
+</nav>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="flex-1 flex flex-col">
+
+<header class="bg-white shadow-sm p-4 flex items-center gap-3">
+
+<button id="menuBtn" class="text-2xl md:hidden">
+☰
+</button>
+
+<h1 class="font-semibold text-lg">
 Panel Settings
 </h1>
 
-<div class="bg-white p-6 rounded-xl shadow space-y-4">
+</header>
+
+<main class="p-6 overflow-y-auto">
+
+<div class="card p-6 max-w-xl space-y-4">
 
 <input id="siteName"
 placeholder="Tên website"
-class="border p-3 w-full rounded">
+class="border p-3 w-full rounded-lg">
 
 <input id="currency"
-placeholder="Đơn vị tiền"
-class="border p-3 w-full rounded">
+placeholder="Đơn vị tiền (VD: VND)"
+class="border p-3 w-full rounded-lg">
 
 <button onclick="save()"
-class="bg-blue-600 text-white px-6 py-3 rounded">
-
+class="bg-blue-600 text-white px-6 py-3 rounded-lg">
 Lưu cài đặt
-
 </button>
+
+</div>
+
+</main>
+
+</div>
 
 </div>
 
 <script>
 
 const token=localStorage.getItem("token")
+const user=JSON.parse(localStorage.getItem("user")||"{}")
+
+if(!token){
+window.location="../login.html"
+}
+
+if(user.role!=="admin"){
+alert("Không có quyền admin")
+window.location="../dashboard.html"
+}
+
+/* LOAD SETTINGS */
+
+async function load(){
+
+try{
+
+const res=await fetch("/api/admin/settings",{
+headers:{Authorization:"Bearer "+token}
+})
+
+const data=await res.json()
+
+document.getElementById("siteName").value=data.siteName||""
+document.getElementById("currency").value=data.currency||""
+
+}catch{
+
+console.log("API lỗi")
+
+}
+
+}
+
+/* SAVE SETTINGS */
 
 async function save(){
 
@@ -57,9 +221,31 @@ currency
 
 })
 
-alert("Đã lưu")
+alert("Đã lưu cài đặt")
 
 }
+
+/* SIDEBAR */
+
+const menuBtn=document.getElementById("menuBtn")
+const sidebar=document.getElementById("sidebar")
+const overlay=document.getElementById("overlay")
+
+if(menuBtn){
+
+menuBtn.addEventListener("click",()=>{
+sidebar.classList.toggle("open")
+overlay.classList.toggle("show")
+})
+
+overlay.addEventListener("click",()=>{
+sidebar.classList.remove("open")
+overlay.classList.remove("show")
+})
+
+}
+
+load()
 
 </script>
 
