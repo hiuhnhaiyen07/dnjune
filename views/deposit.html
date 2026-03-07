@@ -29,6 +29,13 @@ border-radius:18px;
 box-shadow:0 10px 25px rgba(0,0,0,0.05);
 }
 
+.copyBtn{
+background:#f1f5f9;
+padding:4px 10px;
+border-radius:6px;
+font-size:12px;
+}
+
 </style>
 
 </head>
@@ -97,26 +104,67 @@ Thông tin chuyển khoản
 
 <div class="space-y-3 text-sm">
 
-<div class="flex justify-between">
+<div class="flex justify-between items-center">
+
 <span>Ngân hàng</span>
-<span class="font-semibold">MB Bank</span>
+
+<div>
+
+<span id="bankName" class="font-semibold">MB Bank</span>
+
+<button class="copyBtn" onclick="copy('bankName')">
+Copy
+</button>
+
 </div>
 
-<div class="flex justify-between">
+</div>
+
+<div class="flex justify-between items-center">
+
 <span>Số tài khoản</span>
-<span class="font-semibold">610793</span>
+
+<div>
+
+<span id="bankNumber" class="font-semibold">
+610793
+</span>
+
+<button class="copyBtn" onclick="copy('bankNumber')">
+Copy
+</button>
+
 </div>
 
-<div class="flex justify-between">
+</div>
+
+<div class="flex justify-between items-center">
+
 <span>Chủ tài khoản</span>
-<span class="font-semibold">LE KIM YEN</span>
+
+<span class="font-semibold">
+LE KIM YEN
+</span>
+
 </div>
 
-<div class="flex justify-between">
+<div class="flex justify-between items-center">
+
 <span>Nội dung CK</span>
-<span id="transferContent" class="font-semibold text-blue-600">
+
+<div>
+
+<span id="transferContent"
+class="font-semibold text-blue-600">
 NAPTIEN
 </span>
+
+<button class="copyBtn" onclick="copy('transferContent')">
+Copy
+</button>
+
+</div>
+
 </div>
 
 </div>
@@ -127,9 +175,33 @@ Sau khi chuyển khoản, hãy upload bill để admin duyệt.
 
 </div>
 
+<!-- QR -->
+
+<div class="card p-6 text-center">
+
+<h2 class="font-semibold mb-4">
+Quét QR chuyển khoản
+</h2>
+
+<img id="qrImage"
+class="mx-auto w-56">
+
+<div class="mt-4 text-red-500 font-semibold">
+
+Thời gian còn lại:
+<span id="timer">
+10:00
+</span>
+
+</div>
+
+</div>
+
+</div>
+
 <!-- UPLOAD BILL -->
 
-<div class="card p-6">
+<div class="card p-6 mt-6">
 
 <h2 class="font-semibold mb-4">
 Gửi bill nạp tiền
@@ -164,8 +236,6 @@ Gửi bill
 
 </div>
 
-</div>
-
 <!-- HISTORY -->
 
 <div class="card p-6 mt-6">
@@ -180,29 +250,16 @@ Lịch sử nạp tiền
 
 <tr class="border-b">
 
-<th class="py-2 text-left">
-ID
-</th>
-
-<th>
-Amount
-</th>
-
-<th>
-Status
-</th>
-
-<th>
-Date
-</th>
+<th class="py-2 text-left">ID</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Date</th>
 
 </tr>
 
 </thead>
 
-<tbody id="depositTable">
-
-</tbody>
+<tbody id="depositTable"></tbody>
 
 </table>
 
@@ -222,12 +279,52 @@ if(!token){
 window.location="login.html"
 }
 
-/* SET CONTENT */
-
 const user=JSON.parse(localStorage.getItem("user")||"{}")
 
-document.getElementById("transferContent").innerText=
-"NAPTIEN "+(user.username||"")
+const content="NAPTIEN "+(user.username||"")
+
+document.getElementById("transferContent").innerText=content
+
+/* COPY */
+
+function copy(id){
+
+const text=document.getElementById(id).innerText
+
+navigator.clipboard.writeText(text)
+
+alert("Đã copy")
+
+}
+
+/* VIETQR */
+
+const bank="MB"
+const account="610793"
+const name="LE KIM YEN"
+
+const qr=`https://img.vietqr.io/image/${bank}-${account}-compact.png?amount=0&addInfo=${content}&accountName=${name}`
+
+document.getElementById("qrImage").src=qr
+
+/* TIMER 10 PHÚT */
+
+let time=600
+
+setInterval(()=>{
+
+if(time<=0) return
+
+time--
+
+let m=Math.floor(time/60)
+let s=time%60
+
+if(s<10)s="0"+s
+
+document.getElementById("timer").innerText=m+":"+s
+
+},1000)
 
 /* UPLOAD BILL */
 
@@ -262,11 +359,9 @@ data.message || "Đã gửi"
 
 })
 
-/* LOAD HISTORY */
+/* HISTORY */
 
 async function loadDeposits(){
-
-try{
 
 const res=await fetch("/api/payments/my",{
 
@@ -300,8 +395,6 @@ tr.innerHTML=`
 table.appendChild(tr)
 
 })
-
-}catch{}
 
 }
 
