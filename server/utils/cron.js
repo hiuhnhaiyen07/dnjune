@@ -33,3 +33,8 @@ message:"Đơn "+o._id+" đã hoàn thành"
 })
 
 }
+io.emit("notification",{
+
+message:"Đơn "+o._id+" đã hoàn thành"
+
+})
