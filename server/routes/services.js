@@ -23,3 +23,20 @@ router.get("/", auth, async (req, res) => {
 })
 
 module.exports = router
+
+const express=require("express")
+
+const Service=require("../models/Service")
+const auth=require("../middleware/auth")
+
+const router=express.Router()
+
+router.get("/",auth,async(req,res)=>{
+
+const services=await Service.find({enabled:true})
+
+res.json(services)
+
+})
+
+module.exports=router
