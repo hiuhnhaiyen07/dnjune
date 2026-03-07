@@ -29,17 +29,54 @@ border-radius:18px;
 box-shadow:0 10px 25px rgba(0,0,0,0.06);
 }
 
+#sidebar{
+transition:all .3s;
+}
+
+@media (max-width:768px){
+
+#sidebar{
+position:fixed;
+left:-260px;
+top:0;
+height:100%;
+z-index:50;
+}
+
+#sidebar.open{
+left:0;
+}
+
+}
+
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.4);
+display:none;
+z-index:40;
+}
+
+#overlay.show{
+display:block;
+}
+
 </style>
 
 </head>
 
 <body>
 
+<div id="overlay"></div>
+
 <div class="flex h-screen">
 
 <!-- SIDEBAR -->
 
-<div class="sidebar w-64 text-white flex flex-col">
+<div id="sidebar" class="sidebar w-64 text-white flex flex-col">
 
 <div class="p-6 text-2xl font-bold border-b border-gray-700">
 ADMIN PANEL
@@ -47,24 +84,36 @@ ADMIN PANEL
 
 <nav class="flex-1 p-4 space-y-2">
 
-<a href="dashboard.html"
-class="block px-4 py-3 rounded-lg bg-blue-600">
+<a href="dashboard.html" class="block px-4 py-3 rounded-lg bg-blue-600">
 Dashboard
 </a>
 
-<a href="users.html"
-class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+<a href="users.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
 Users
 </a>
 
-<a href="orders.html"
-class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+<a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
 Orders
 </a>
 
-<a href="payments.html"
-class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Services
+</a>
+
+<a href="payments.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
 Deposits
+</a>
+
+<a href="profit.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Profit
+</a>
+
+<a href="logs.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Logs
+</a>
+
+<a href="settings.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Settings
 </a>
 
 </nav>
@@ -84,7 +133,11 @@ Logout
 
 <div class="flex-1 flex flex-col">
 
-<header class="bg-white shadow-sm p-4">
+<header class="bg-white shadow-sm p-4 flex items-center gap-3">
+
+<button id="menuBtn" class="text-2xl md:hidden">
+☰
+</button>
 
 <h1 class="font-semibold text-lg">
 Admin Dashboard
@@ -171,38 +224,83 @@ Status: <span class="text-green-600">Online</span>
 <script>
 
 const token=localStorage.getItem("token")
+const user=JSON.parse(localStorage.getItem("user")||"{}")
 
 if(!token){
 window.location="../login.html"
 }
 
+/* CHECK ADMIN */
+
+if(user.role!=="admin"){
+alert("Không có quyền admin")
+window.location="../dashboard.html"
+}
+
+/* LOAD STATS */
+
 async function loadStats(){
 
-const res=await fetch("/api/admin/stats",{
+try{
 
+const res=await fetch("/api/admin/stats",{
 headers:{
 Authorization:"Bearer "+token
 }
-
 })
 
 const data=await res.json()
 
-document.getElementById("users").innerText=data.users
-document.getElementById("orders").innerText=data.orders
-document.getElementById("revenue").innerText=data.revenue+" VND"
+document.getElementById("users").innerText=data.users||0
+document.getElementById("orders").innerText=data.orders||0
+document.getElementById("revenue").innerText=(data.revenue||0)+" VND"
+
+}catch{
+
+console.log("API lỗi")
 
 }
+
+}
+
+/* SIDEBAR */
+
+const menuBtn=document.getElementById("menuBtn")
+const sidebar=document.getElementById("sidebar")
+const overlay=document.getElementById("overlay")
+
+if(menuBtn){
+
+menuBtn.addEventListener("click",()=>{
+
+sidebar.classList.toggle("open")
+overlay.classList.toggle("show")
+
+})
+
+overlay.addEventListener("click",()=>{
+
+sidebar.classList.remove("open")
+overlay.classList.remove("show")
+
+})
+
+}
+
+/* LOGOUT */
 
 function logout(){
 
 localStorage.removeItem("token")
+localStorage.removeItem("user")
 
 window.location="../login.html"
 
 }
 
 loadStats()
+
+setInterval(loadStats,30000)
 
 </script>
 
