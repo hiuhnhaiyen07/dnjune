@@ -7,21 +7,70 @@ const Payment = require("../models/Payment")
 
 const router = express.Router()
 
-const upload = multer({ dest: "uploads/" })
+/* =========================
+   UPLOAD CONFIG
+========================= */
 
-router.post("/deposit", auth, upload.single("bill"), async (req, res) => {
+const storage = multer.diskStorage({
 
-  const payment = new Payment({
+destination: (req,file,cb)=>{
+cb(null,"uploads/")
+},
 
-    userId: req.user.id,
-    amount: req.body.amount,
-    billImage: req.file.path
+filename: (req,file,cb)=>{
+cb(null, Date.now() + "-" + file.originalname)
+}
 
-  })
+})
 
-  await payment.save()
+const upload = multer({storage})
 
-  res.json({ message: "Đã gửi bill, chờ admin duyệt" })
+/* =========================
+   CREATE DEPOSIT
+========================= */
+
+router.post("/deposit", auth, upload.single("bill"), async (req,res)=>{
+
+try{
+
+if(!req.file){
+return res.json({error:"Chưa upload bill"})
+}
+
+const payment = new Payment({
+
+userId:req.user.id,
+amount:req.body.amount,
+billImage:req.file.path,
+status:"pending"
+
+})
+
+await payment.save()
+
+res.json({
+message:"Đã gửi bill, chờ admin duyệt"
+})
+
+}catch(err){
+
+res.status(500).json({error:"Server error"})
+
+}
+
+})
+
+/* =========================
+   USER PAYMENT HISTORY
+========================= */
+
+router.get("/my", auth, async (req,res)=>{
+
+const payments = await Payment
+.find({userId:req.user.id})
+.sort({createdAt:-1})
+
+res.json(payments)
 
 })
 
