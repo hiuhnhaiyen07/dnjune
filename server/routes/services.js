@@ -1,34 +1,26 @@
 const express = require("express")
+const auth = require("../middleware/auth")
 
-const services = require("../config/services")
+const servicesConfig = require("../config/services")
 
 const router = express.Router()
 
-/* =========================
-   GET SERVICES
-========================= */
+router.get("/", auth, (req,res)=>{
 
-router.get("/", (req, res) => {
+let list=[]
 
-try{
+servicesConfig.forEach(cat=>{
 
-let list = []
-
-services.forEach(category => {
-
-category.services.forEach(s => {
+cat.services.forEach(s=>{
 
 list.push({
-
-_id: s.id,
-name: s.name,
-rate: s.rate,
-min: s.min,
-max: s.max,
-provider: s.provider,
-category: category.category,
-enabled: true
-
+service:s.id,
+name:s.name,
+rate:s.rate,
+min:s.min,
+max:s.max,
+provider:s.provider,
+category:cat.category
 })
 
 })
@@ -36,14 +28,6 @@ enabled: true
 })
 
 res.json(list)
-
-}catch(err){
-
-res.status(500).json({
-error:"Server error"
-})
-
-}
 
 })
 
