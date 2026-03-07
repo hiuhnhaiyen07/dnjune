@@ -20,6 +20,8 @@ const app = express()
 
 connectDB()
 
+/* RATE LIMIT */
+
 const limiter = rateLimit({
   windowMs: 60 * 1000,
   max: 100
@@ -27,11 +29,15 @@ const limiter = rateLimit({
 
 app.use(limiter)
 
+/* MIDDLEWARE */
+
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.use(express.static(path.join(__dirname, "../public")))
+
+/* ROUTES */
 
 app.use("/api/auth", authRoutes)
 app.use("/api/services", serviceRoutes)
@@ -42,14 +48,20 @@ app.use("/api/notifications", notificationRoutes)
 app.use("/api/tickets", ticketRoutes)
 app.use("/api/reseller", resellerRoutes)
 
+/* HOME PAGE */
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../views/login.html"))
 })
 
+/* CRON */
+
 require("./utils/cron")
+
+/* SERVER */
 
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`)
+  console.log("Server running on " + PORT)
 })
