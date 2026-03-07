@@ -43,7 +43,25 @@ font-weight:600;
 color:#ef4444;
 font-weight:600;
 }
+#sidebar{
+transition:all .3s;
+}
 
+@media (max-width:768px){
+
+#sidebar{
+position:fixed;
+left:-260px;
+top:0;
+height:100%;
+z-index:50;
+}
+
+#sidebar.open{
+left:0;
+}
+
+}
 </style>
 
 </head>
@@ -54,7 +72,7 @@ font-weight:600;
 
 <!-- SIDEBAR -->
 
-<div class="sidebar w-64 text-white flex flex-col">
+<div id="sidebar" class="sidebar w-64 text-white flex flex-col">
 
 <div class="p-6 text-2xl font-bold border-b border-slate-700">
 SMM PANEL
@@ -92,9 +110,17 @@ Nạp tiền
 
 <header class="bg-white shadow-sm p-4 flex justify-between items-center">
 
+<div class="flex items-center gap-3">
+
+<button id="menuBtn" class="text-2xl md:hidden">
+☰
+</button>
+
 <h1 class="font-semibold text-lg">
 Lịch sử đơn hàng
 </h1>
+
+</div>
 
 <div class="flex gap-3">
 
@@ -265,7 +291,9 @@ document.getElementById("search").addEventListener("input",(e)=>{
 const keyword=e.target.value.toLowerCase()
 
 const filtered=orders.filter(o=>
-o.link.toLowerCase().includes(keyword)
+o.link.toLowerCase().includes(keyword) ||
+o.service.toLowerCase().includes(keyword) ||
+o._id.toLowerCase().includes(keyword)
 )
 
 renderOrders(filtered)
@@ -290,7 +318,15 @@ renderOrders(filtered)
 })
 
 loadOrders()
+const menuBtn=document.getElementById("menuBtn")
+const sidebar=document.getElementById("sidebar")
 
+if(menuBtn){
+menuBtn.addEventListener("click",()=>{
+sidebar.classList.toggle("open")
+})
+}
+  setInterval(loadOrders,30000)
 </script>
 
 </body>
