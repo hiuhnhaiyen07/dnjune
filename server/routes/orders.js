@@ -40,9 +40,9 @@ return res.json({ error:"Link không hợp lệ" })
 
 /* FIND SERVICE */
 
-const s = await Service.findOne({ service, enabled:true })
+const s = await Service.findById(service)
 
-if(!s){
+if(!s || !s.enabled){
 return res.json({ error:"Service không tồn tại" })
 }
 
@@ -78,7 +78,7 @@ let api
 
 try{
 
-api = await createOrder(s.provider, link, quantity)
+api = await createOrder(s.provider || s.service, link, quantity)
 
 }catch(e){
 
@@ -96,8 +96,10 @@ const order = new Order({
 
 userId: user._id,
 
-service: s.service,
+service: s._id,
+
 link,
+
 quantity,
 
 price,
