@@ -62,6 +62,8 @@ res.json(users)
 
 }catch(err){
 
+console.log(err)
+
 res.status(500).json({error:"Server error"})
 
 }
@@ -79,10 +81,13 @@ try{
 const payments = await Payment
 .find()
 .sort({createdAt:-1})
+.populate("userId","username email")
 
 res.json(payments)
 
 }catch(err){
+
+console.log(err)
 
 res.status(500).json({error:"Server error"})
 
@@ -127,12 +132,13 @@ await Transaction.create({
 userId:user._id,
 type:"deposit",
 amount:Number(payment.amount),
-note:"Nạp tiền"
+note:"Nạp tiền qua admin"
 
 })
 
 res.json({
-message:"Đã cộng tiền"
+message:"Đã cộng tiền",
+balance:user.balance
 })
 
 }catch(err){
@@ -169,6 +175,8 @@ message:"Đã từ chối bill"
 
 }catch(err){
 
+console.log(err)
+
 res.status(500).json({error:"Server error"})
 
 }
@@ -189,7 +197,12 @@ if(!username || !amount){
 return res.json({error:"Thiếu dữ liệu"})
 }
 
-const user = await User.findOne({username})
+const user = await User.findOne({
+$or:[
+{username:username},
+{email:username}
+]
+})
 
 if(!user){
 return res.json({error:"User không tồn tại"})
@@ -231,7 +244,8 @@ note:reason || "Admin chỉnh số dư"
 })
 
 res.json({
-message:"Đã cập nhật số dư"
+message:"Đã cập nhật số dư",
+balance:user.balance
 })
 
 }catch(err){
@@ -256,10 +270,13 @@ const logs = await Transaction
 .find()
 .sort({createdAt:-1})
 .limit(100)
+.populate("userId","username")
 
 res.json(logs)
 
 }catch(err){
+
+console.log(err)
 
 res.status(500).json({error:"Server error"})
 
@@ -282,6 +299,8 @@ const tickets = await Ticket
 res.json(tickets)
 
 }catch(err){
+
+console.log(err)
 
 res.status(500).json({error:"Server error"})
 
@@ -306,6 +325,8 @@ return res.json({error:"Ticket không tồn tại"})
 res.json(ticket)
 
 }catch(err){
+
+console.log(err)
 
 res.status(500).json({error:"Server error"})
 
@@ -337,6 +358,8 @@ message:"Đã trả lời ticket"
 })
 
 }catch(err){
+
+console.log(err)
 
 res.status(500).json({error:"Server error"})
 
