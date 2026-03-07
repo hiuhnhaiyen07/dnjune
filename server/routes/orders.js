@@ -71,3 +71,14 @@ router.get("/my", auth, async (req, res) => {
 })
 
 module.exports = router
+
+const Transaction=require("../models/Transaction")
+
+await Transaction.create({
+
+userId:user._id,
+type:"order",
+amount:-price,
+note:"Order "+order._id
+
+})
