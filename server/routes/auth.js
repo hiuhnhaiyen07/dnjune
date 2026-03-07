@@ -8,69 +8,100 @@ const router = express.Router()
 
 /* REGISTER */
 
-router.post("/register", async (req, res) => {
+router.post("/register", async (req,res)=>{
 
-  const { username, email, password } = req.body
+try{
 
-  if (username.length < 4) {
-    return res.json({ error: "Username tối thiểu 4 ký tự" })
-  }
+const {username,email,password} = req.body
 
-  if (password.length < 6) {
-    return res.json({ error: "Password tối thiểu 6 ký tự" })
-  }
+if(!username || !email || !password){
+return res.json({error:"Thiếu thông tin"})
+}
 
-  const exists = await User.findOne({ username })
+const userExist = await User.findOne({username})
+if(userExist){
+return res.json({error:"Username đã tồn tại"})
+}
 
-  if (exists) {
-    return res.json({ error: "Username đã tồn tại" })
-  }
+const emailExist = await User.findOne({email})
+if(emailExist){
+return res.json({error:"Email đã tồn tại"})
+}
 
-  const hash = await bcrypt.hash(password, 10)
+/* HASH PASSWORD */
 
-  const user = new User({
-    username,
-    email,
-    password: hash
-  })
+const hashedPassword = await bcrypt.hash(password,10)
 
-  await user.save()
+const user = new User({
+username,
+email,
+password:hashedPassword
+})
 
-  res.json({ message: "Đăng ký thành công" })
+await user.save()
+
+res.json({message:"Đăng ký thành công"})
+
+}catch(err){
+
+console.log(err)
+res.json({error:"Lỗi server"})
+
+}
 
 })
 
 /* LOGIN */
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req,res)=>{
 
-  const { username, password } = req.body
+try{
 
-  const user = await User.findOne({ username })
+const {email,password} = req.body
 
-  if (!user) {
-    return res.json({ error: "User không tồn tại" })
-  }
+const user = await User.findOne({email})
 
-  const valid = await bcrypt.compare(password, user.password)
+if(!user){
+return res.json({error:"Email không tồn tại"})
+}
 
-  if (!valid) {
-    return res.json({ error: "Sai mật khẩu" })
-  }
+/* COMPARE PASSWORD */
 
-  const token = jwt.sign(
-    {
-      id: user._id,
-      role: user.role
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  )
+const match = await bcrypt.compare(password,user.password)
 
-  res.json({
-    token,
-    user
-  })
+if(!match){
+return res.json({error:"Sai mật khẩu"})
+}
+
+/* CREATE TOKEN */
+
+const token = jwt.sign(
+
+{
+id:user._id,
+role:user.role
+},
+
+process.env.JWT_SECRET,
+
+{expiresIn:"7d"}
+
+)
+
+res.json({
+token,
+user:{
+username:user.username,
+email:user.email
+}
+})
+
+}catch(err){
+
+console.log(err)
+res.json({error:"Login lỗi"})
+
+}
 
 })
 
