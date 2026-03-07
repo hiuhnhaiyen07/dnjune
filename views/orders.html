@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Đơn hàng - SMM Panel</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:#f4f7fb;
+}
+
+.sidebar{
+background:#0f172a;
+}
+
+.card{
+background:white;
+border-radius:18px;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+.status-processing{
+color:#f59e0b;
+font-weight:600;
+}
+
+.status-completed{
+color:#16a34a;
+font-weight:600;
+}
+
+.status-canceled{
+color:#ef4444;
+font-weight:600;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="flex h-screen">
+
+<!-- SIDEBAR -->
+
+<div class="sidebar w-64 text-white flex flex-col">
+
+<div class="p-6 text-2xl font-bold border-b border-slate-700">
+SMM PANEL
+</div>
+
+<nav class="flex-1 p-4 space-y-2">
+
+<a href="dashboard.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Dashboard
+</a>
+
+<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Dịch vụ
+</a>
+
+<a href="add-order.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Tạo đơn
+</a>
+
+<a href="orders.html" class="block px-4 py-3 rounded-lg bg-blue-600">
+Đơn hàng
+</a>
+
+<a href="deposit.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Nạp tiền
+</a>
+
+</nav>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="flex-1 flex flex-col">
+
+<header class="bg-white shadow-sm p-4 flex justify-between items-center">
+
+<h1 class="font-semibold text-lg">
+Lịch sử đơn hàng
+</h1>
+
+<div class="flex gap-3">
+
+<input
+id="search"
+placeholder="Tìm đơn..."
+class="border px-3 py-2 rounded"
+/>
+
+<select id="filter" class="border px-3 py-2 rounded">
+
+<option value="">
+Tất cả
+</option>
+
+<option value="processing">
+Processing
+</option>
+
+<option value="completed">
+Completed
+</option>
+
+<option value="canceled">
+Canceled
+</option>
+
+</select>
+
+</div>
+
+</header>
+
+<main class="p-6 overflow-y-auto">
+
+<div class="card p-6">
+
+<table class="w-full text-sm">
+
+<thead>
+
+<tr class="border-b text-gray-600">
+
+<th class="py-3 text-left">
+Order ID
+</th>
+
+<th>
+Service
+</th>
+
+<th>
+Link
+</th>
+
+<th>
+Quantity
+</th>
+
+<th>
+Price
+</th>
+
+<th>
+Status
+</th>
+
+<th>
+Date
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="ordersTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+</main>
+
+</div>
+
+</div>
+
+<script>
+
+const token=localStorage.getItem("token")
+
+if(!token){
+window.location="login.html"
+}
+
+let orders=[]
+
+/* LOAD ORDERS */
+
+async function loadOrders(){
+
+const res=await fetch("/api/orders/my",{
+
+headers:{
+Authorization:"Bearer "+token
+}
+
+})
+
+orders=await res.json()
+
+renderOrders(orders)
+
+}
+
+function renderOrders(list){
+
+const table=document.getElementById("ordersTable")
+
+table.innerHTML=""
+
+list.forEach(o=>{
+
+const tr=document.createElement("tr")
+
+tr.className="border-b hover:bg-gray-50"
+
+let statusClass=""
+
+if(o.status==="processing") statusClass="status-processing"
+if(o.status==="completed") statusClass="status-completed"
+if(o.status==="canceled") statusClass="status-canceled"
+
+tr.innerHTML=`
+
+<td class="py-3">${o._id}</td>
+
+<td>${o.service}</td>
+
+<td class="truncate max-w-xs">${o.link}</td>
+
+<td>${o.quantity}</td>
+
+<td>${o.price} VND</td>
+
+<td class="${statusClass}">
+${o.status}
+</td>
+
+<td>
+${new Date(o.createdAt).toLocaleDateString()}
+</td>
+
+`
+
+table.appendChild(tr)
+
+})
+
+}
+
+/* SEARCH */
+
+document.getElementById("search").addEventListener("input",(e)=>{
+
+const keyword=e.target.value.toLowerCase()
+
+const filtered=orders.filter(o=>
+o.link.toLowerCase().includes(keyword)
+)
+
+renderOrders(filtered)
+
+})
+
+/* FILTER */
+
+document.getElementById("filter").addEventListener("change",(e)=>{
+
+const status=e.target.value
+
+if(!status){
+renderOrders(orders)
+return
+}
+
+const filtered=orders.filter(o=>o.status===status)
+
+renderOrders(filtered)
+
+})
+
+loadOrders()
+
+</script>
+
+</body>
+</html>
