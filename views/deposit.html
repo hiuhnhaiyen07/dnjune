@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nạp tiền - SMM Panel</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:#f4f7fb;
+}
+
+.sidebar{
+background:#0f172a;
+}
+
+.card{
+background:white;
+border-radius:18px;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="flex h-screen">
+
+<!-- SIDEBAR -->
+
+<div class="sidebar w-64 text-white flex flex-col">
+
+<div class="p-6 text-2xl font-bold border-b border-slate-700">
+SMM PANEL
+</div>
+
+<nav class="flex-1 p-4 space-y-2">
+
+<a href="dashboard.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Dashboard
+</a>
+
+<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Dịch vụ
+</a>
+
+<a href="add-order.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Tạo đơn
+</a>
+
+<a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Đơn hàng
+</a>
+
+<a href="deposit.html" class="block px-4 py-3 rounded-lg bg-blue-600">
+Nạp tiền
+</a>
+
+</nav>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="flex-1 flex flex-col">
+
+<header class="bg-white shadow-sm p-4">
+
+<h1 class="text-lg font-semibold">
+Nạp tiền tài khoản
+</h1>
+
+</header>
+
+<main class="p-6 overflow-y-auto">
+
+<div class="grid md:grid-cols-2 gap-6">
+
+<!-- BANK INFO -->
+
+<div class="card p-6">
+
+<h2 class="font-semibold mb-4">
+Thông tin chuyển khoản
+</h2>
+
+<div class="space-y-3 text-sm">
+
+<div class="flex justify-between">
+<span>Ngân hàng</span>
+<span class="font-semibold">MB Bank</span>
+</div>
+
+<div class="flex justify-between">
+<span>Số tài khoản</span>
+<span class="font-semibold">610793</span>
+</div>
+
+<div class="flex justify-between">
+<span>Chủ tài khoản</span>
+<span class="font-semibold">LE KIM YEN</span>
+</div>
+
+<div class="flex justify-between">
+<span>Nội dung CK</span>
+<span id="transferContent" class="font-semibold text-blue-600">
+NAPTIEN
+</span>
+</div>
+
+</div>
+
+<div class="mt-4 text-xs text-gray-500">
+Sau khi chuyển khoản, hãy upload bill để admin duyệt.
+</div>
+
+</div>
+
+<!-- UPLOAD BILL -->
+
+<div class="card p-6">
+
+<h2 class="font-semibold mb-4">
+Gửi bill nạp tiền
+</h2>
+
+<form id="depositForm" class="space-y-4">
+
+<input
+type="number"
+id="amount"
+placeholder="Số tiền"
+class="w-full border p-3 rounded-lg"
+/>
+
+<input
+type="file"
+id="bill"
+class="w-full border p-3 rounded-lg"
+/>
+
+<button
+type="submit"
+class="w-full bg-blue-600 text-white py-3 rounded-lg">
+
+Gửi bill
+
+</button>
+
+<div id="message" class="text-sm"></div>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- HISTORY -->
+
+<div class="card p-6 mt-6">
+
+<h2 class="font-semibold mb-4">
+Lịch sử nạp tiền
+</h2>
+
+<table class="w-full text-sm">
+
+<thead>
+
+<tr class="border-b">
+
+<th class="py-2 text-left">
+ID
+</th>
+
+<th>
+Amount
+</th>
+
+<th>
+Status
+</th>
+
+<th>
+Date
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="depositTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+</main>
+
+</div>
+
+</div>
+
+<script>
+
+const token=localStorage.getItem("token")
+
+if(!token){
+window.location="login.html"
+}
+
+/* SET CONTENT */
+
+const user=JSON.parse(localStorage.getItem("user")||"{}")
+
+document.getElementById("transferContent").innerText=
+"NAPTIEN "+(user.username||"")
+
+/* UPLOAD BILL */
+
+document.getElementById("depositForm").addEventListener("submit",async(e)=>{
+
+e.preventDefault()
+
+const amount=document.getElementById("amount").value
+const bill=document.getElementById("bill").files[0]
+
+const formData=new FormData()
+
+formData.append("amount",amount)
+formData.append("bill",bill)
+
+const res=await fetch("/api/payments/deposit",{
+
+method:"POST",
+
+headers:{
+Authorization:"Bearer "+token
+},
+
+body:formData
+
+})
+
+const data=await res.json()
+
+document.getElementById("message").innerText=
+data.message || "Đã gửi"
+
+})
+
+/* LOAD HISTORY */
+
+async function loadDeposits(){
+
+try{
+
+const res=await fetch("/api/payments/my",{
+
+headers:{
+Authorization:"Bearer "+token
+}
+
+})
+
+const data=await res.json()
+
+const table=document.getElementById("depositTable")
+
+table.innerHTML=""
+
+data.forEach(d=>{
+
+const tr=document.createElement("tr")
+
+tr.className="border-b"
+
+tr.innerHTML=`
+
+<td class="py-2">${d._id}</td>
+<td>${d.amount} VND</td>
+<td>${d.status}</td>
+<td>${new Date(d.createdAt).toLocaleDateString()}</td>
+
+`
+
+table.appendChild(tr)
+
+})
+
+}catch{}
+
+}
+
+loadDeposits()
+
+</script>
+
+</body>
+</html>
