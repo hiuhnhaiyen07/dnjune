@@ -18,10 +18,14 @@ if(!username || !email || !password){
 return res.json({error:"Thiếu thông tin"})
 }
 
+/* CHECK USERNAME */
+
 const userExist = await User.findOne({username})
 if(userExist){
 return res.json({error:"Username đã tồn tại"})
 }
+
+/* CHECK EMAIL */
 
 const emailExist = await User.findOne({email})
 if(emailExist){
@@ -57,12 +61,23 @@ router.post("/login", async (req,res)=>{
 
 try{
 
-const {email,password} = req.body
+const {username,password} = req.body
 
-const user = await User.findOne({email})
+if(!username || !password){
+return res.json({error:"Thiếu thông tin"})
+}
+
+/* FIND USER BY USERNAME OR EMAIL */
+
+const user = await User.findOne({
+$or:[
+{username:username},
+{email:username}
+]
+})
 
 if(!user){
-return res.json({error:"Email không tồn tại"})
+return res.json({error:"Tài khoản không tồn tại"})
 }
 
 /* COMPARE PASSWORD */
@@ -82,7 +97,7 @@ id:user._id,
 role:user.role
 },
 
-process.env.JWT_SECRET,
+process.env.JWT_SECRET || "secret123",
 
 {expiresIn:"7d"}
 
@@ -92,7 +107,8 @@ res.json({
 token,
 user:{
 username:user.username,
-email:user.email
+email:user.email,
+role:user.role
 }
 })
 
