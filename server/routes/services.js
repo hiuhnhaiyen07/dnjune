@@ -5,29 +5,47 @@ const servicesConfig = require("../config/services")
 
 const router = express.Router()
 
-router.get("/", auth, (req,res)=>{
+/* =========================
+   GET ALL SERVICES
+========================= */
 
-let list=[]
+router.get("/", auth, (req, res) => {
 
-servicesConfig.forEach(cat=>{
+try{
 
-cat.services.forEach(s=>{
+let services = []
 
-list.push({
-service:s.id,
-name:s.name,
-rate:s.rate,
-min:s.min,
-max:s.max,
-provider:s.provider,
-category:cat.category
+servicesConfig.forEach(category => {
+
+category.services.forEach(s => {
+
+services.push({
+
+service: s.id,          // ID service
+name: s.name,           // tên dịch vụ
+rate: s.rate,           // giá /1000
+min: s.min,
+max: s.max,
+provider: s.provider,   // id bên provider
+category: category.category
+
 })
 
 })
 
 })
 
-res.json(list)
+res.json(services)
+
+}catch(err){
+
+console.log(err)
+
+res.status(500).json({
+error:"Server error"
+})
+
+}
 
 })
 
