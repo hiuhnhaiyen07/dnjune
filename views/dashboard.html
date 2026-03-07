@@ -2,7 +2,6 @@
 <html lang="vi">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -28,6 +27,7 @@ background:white;
 border-radius:18px;
 box-shadow:0 10px 25px rgba(0,0,0,0.05);
 }
+
 #sidebar{
 transition:all .3s;
 }
@@ -47,6 +47,7 @@ left:0;
 }
 
 }
+
 #overlay{
 position:fixed;
 top:0;
@@ -61,15 +62,16 @@ display:none;
 #overlay.show{
 display:block;
 }
-</style>
 
+</style>
 </head>
 
 <body>
 
 <div class="flex h-screen">
+
 <div id="overlay"></div>
-  
+
 <!-- SIDEBAR -->
 
 <div id="sidebar" class="sidebar w-64 text-white flex flex-col">
@@ -120,15 +122,11 @@ Hỗ trợ
 
 <div class="flex-1 flex flex-col">
 
-<!-- TOPBAR -->
-
 <header class="bg-white shadow-sm p-4 flex justify-between items-center">
 
 <div class="flex items-center gap-3">
 
-<button id="menuBtn" class="text-2xl md:hidden">
-☰
-</button>
+<button id="menuBtn" class="text-2xl md:hidden">☰</button>
 
 <div class="font-semibold text-lg">
 Dashboard
@@ -137,25 +135,6 @@ Dashboard
 </div>
 
 <div class="flex items-center gap-4">
-
-<div class="relative">
-
-<button onclick="toggleNotif()">
-
-🔔
-
-</button>
-
-<div id="notifBox"
-class="hidden absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg p-4">
-
-<p class="text-sm text-gray-500">
-Chưa có thông báo
-</p>
-
-</div>
-
-</div>
 
 <div class="font-medium" id="username">
 User
@@ -233,13 +212,7 @@ Tạo đơn nhanh
 
 <div class="grid md:grid-cols-3 gap-4">
 
-<select id="service" class="border p-3 rounded-lg">
-
-<option>
-Chọn dịch vụ
-</option>
-
-</select>
+<select id="service" class="border p-3 rounded-lg"></select>
 
 <input
 type="text"
@@ -281,29 +254,16 @@ class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg">
 
 <tr class="border-b">
 
-<th class="py-2 text-left">
-ID
-</th>
-
-<th>
-Service
-</th>
-
-<th>
-Link
-</th>
-
-<th>
-Status
-</th>
+<th class="py-2 text-left">ID</th>
+<th>Service</th>
+<th>Link</th>
+<th>Status</th>
 
 </tr>
 
 </thead>
 
-<tbody id="ordersTable">
-
-</tbody>
+<tbody id="ordersTable"></tbody>
 
 </table>
 
@@ -317,11 +277,28 @@ Status
 
 <script>
 
-const token=localStorage.getItem("token")
+const token = localStorage.getItem("token")
 
 if(!token){
-
 window.location="login.html"
+}
+
+/* LOAD USER */
+
+async function loadUser(){
+
+const res = await fetch("/api/user/me",{
+headers:{
+Authorization:"Bearer "+token
+}
+})
+
+const user = await res.json()
+
+document.getElementById("username").innerText = user.username
+
+document.getElementById("balance").innerText =
+Number(user.balance).toLocaleString()+" VND"
 
 }
 
@@ -329,25 +306,25 @@ window.location="login.html"
 
 async function loadServices(){
 
-const res=await fetch("/api/services",{
-
+const res = await fetch("/api/services",{
 headers:{
 Authorization:"Bearer "+token
 }
-
 })
 
-const data=await res.json()
+const data = await res.json()
 
-const select=document.getElementById("service")
+const select = document.getElementById("service")
+
+select.innerHTML=""
 
 data.forEach(s=>{
 
-const opt=document.createElement("option")
+const opt = document.createElement("option")
 
-opt.value=s.service
+opt.value = s.service
 
-opt.textContent=s.name+" - "+s.rate
+opt.textContent = s.name + " - " + s.rate
 
 select.appendChild(opt)
 
@@ -359,9 +336,9 @@ select.appendChild(opt)
 
 async function createOrder(){
 
-const service=document.getElementById("service").value
-const link=document.getElementById("link").value
-const quantity=document.getElementById("quantity").value
+const service = document.getElementById("service").value
+const link = document.getElementById("link").value
+const quantity = document.getElementById("quantity").value
 
 await fetch("/api/orders/create",{
 
@@ -375,13 +352,14 @@ Authorization:"Bearer "+token
 body:JSON.stringify({
 service,
 link,
-quantity,
-price:1000
+quantity
 })
 
 })
 
 alert("Đặt đơn thành công")
+
+loadOrders()
 
 }
 
@@ -389,21 +367,27 @@ alert("Đặt đơn thành công")
 
 async function loadOrders(){
 
-const res=await fetch("/api/orders/my",{
-
+const res = await fetch("/api/orders/my",{
 headers:{
 Authorization:"Bearer "+token
 }
-
 })
 
-const data=await res.json()
+const data = await res.json()
 
-const table=document.getElementById("ordersTable")
+const table = document.getElementById("ordersTable")
+
+table.innerHTML=""
+
+let running = 0
+let completed = 0
 
 data.slice(0,5).forEach(o=>{
 
-const tr=document.createElement("tr")
+if(o.status==="processing") running++
+if(o.status==="completed") completed++
+
+const tr = document.createElement("tr")
 
 tr.innerHTML=`
 
@@ -418,15 +402,9 @@ table.appendChild(tr)
 
 })
 
-}
-
-/* NOTIFICATION */
-
-function toggleNotif(){
-
-const box=document.getElementById("notifBox")
-
-box.classList.toggle("hidden")
+document.getElementById("totalOrders").innerText = data.length
+document.getElementById("runningOrders").innerText = running
+document.getElementById("completedOrders").innerText = completed
 
 }
 
@@ -442,26 +420,22 @@ window.location="login.html"
 
 /* INIT */
 
+loadUser()
 loadServices()
 loadOrders()
-  
+
+setInterval(loadUser,10000)
+
+/* SIDEBAR */
+
 const menuBtn = document.getElementById("menuBtn")
 const sidebar = document.getElementById("sidebar")
 const overlay = document.getElementById("overlay")
 
 menuBtn.addEventListener("click",()=>{
 
-if(sidebar.classList.contains("open")){
-
-sidebar.classList.remove("open")
-overlay.classList.remove("show")
-
-}else{
-
-sidebar.classList.add("open")
-overlay.classList.add("show")
-
-}
+sidebar.classList.toggle("open")
+overlay.classList.toggle("show")
 
 })
 
@@ -471,7 +445,8 @@ sidebar.classList.remove("open")
 overlay.classList.remove("show")
 
 })
+
 </script>
 
 </body>
-</html>
+  </html>
