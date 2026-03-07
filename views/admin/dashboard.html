@@ -96,10 +96,6 @@ Users
 Orders
 </a>
 
-<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Services
-</a>
-
 <a href="payments.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
 Deposits
 </a>
@@ -120,8 +116,7 @@ Settings
 
 <div class="p-4 border-t border-gray-700">
 
-<button onclick="logout()"
-class="w-full bg-red-500 py-2 rounded-lg">
+<button onclick="logout()" class="w-full bg-red-500 py-2 rounded-lg">
 Logout
 </button>
 
@@ -223,8 +218,8 @@ Status: <span class="text-green-600">Online</span>
 
 <script>
 
-const token=localStorage.getItem("token")
-const user=JSON.parse(localStorage.getItem("user")||"{}")
+const token = localStorage.getItem("token")
+const user = JSON.parse(localStorage.getItem("user") || "{}")
 
 if(!token){
 window.location="../login.html"
@@ -232,7 +227,7 @@ window.location="../login.html"
 
 /* CHECK ADMIN */
 
-if(user.role!=="admin"){
+if(user.role !== "admin"){
 alert("Không có quyền admin")
 window.location="../dashboard.html"
 }
@@ -243,19 +238,26 @@ async function loadStats(){
 
 try{
 
-const res=await fetch("/api/admin/stats",{
+const res = await fetch("/api/admin/stats",{
 headers:{
 Authorization:"Bearer "+token
 }
 })
 
-const data=await res.json()
+if(res.status === 401){
+logout()
+return
+}
 
-document.getElementById("users").innerText=data.users||0
-document.getElementById("orders").innerText=data.orders||0
-document.getElementById("revenue").innerText=(data.revenue||0)+" VND"
+const data = await res.json()
 
-}catch{
+document.getElementById("users").innerText = data.users || 0
+document.getElementById("orders").innerText = data.orders || 0
+
+document.getElementById("revenue").innerText =
+Number(data.revenue || 0).toLocaleString() + " VND"
+
+}catch(e){
 
 console.log("API lỗi")
 
@@ -265,9 +267,9 @@ console.log("API lỗi")
 
 /* SIDEBAR */
 
-const menuBtn=document.getElementById("menuBtn")
-const sidebar=document.getElementById("sidebar")
-const overlay=document.getElementById("overlay")
+const menuBtn = document.getElementById("menuBtn")
+const sidebar = document.getElementById("sidebar")
+const overlay = document.getElementById("overlay")
 
 if(menuBtn){
 
