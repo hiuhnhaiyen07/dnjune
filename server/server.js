@@ -18,13 +18,16 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(express.urlencoded({ extended:true }))
 
 /* =========================
    STATIC FILES
 ========================= */
 
 app.use("/uploads", express.static(path.join(__dirname,"uploads")))
+
+/* HTML FRONTEND */
+app.use(express.static(path.join(__dirname,"../views")))
 
 /* =========================
    API ROUTES
@@ -35,29 +38,6 @@ app.use("/api/orders", orderRoutes)
 app.use("/api/payments", paymentRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/services", serviceRoutes)
-app.use("/api/user", userRoutes)
-
-/* =========================
-   MONGODB CONNECT
-========================= */
-
-mongoose.connect(process.env.MONGO_URI)
-.then(()=>{
-console.log("MongoDB connected")
-})
-.catch(err=>{
-console.log("Mongo error:",err)
-})
-
-/* =========================
-   SERVER START
-========================= */
-
-const PORT = process.env.PORT || 3000
-
-app.listen(PORT,()=>{
-console.log("Server running on port "+PORT)
-})app.use("/api/services", serviceRoutes)
 app.use("/api/user", userRoutes)
 
 /* =========================
@@ -76,7 +56,7 @@ console.log("MongoDB error:",err)
 })
 
 /* =========================
-   SERVER
+   SERVER START
 ========================= */
 
 const PORT = process.env.PORT || 3000
