@@ -20,9 +20,28 @@ router.get("/stats", auth, admin, async (req,res)=>{
 try{
 
 const users = await User.countDocuments()
+
 const orders = await Order.countDocuments()
 
-const payments = await Payment.find({status:"approved"})
+const runningOrders = await Order.countDocuments({
+status:"processing"
+})
+
+const completedOrders = await Order.countDocuments({
+status:"completed"
+})
+
+const pendingPayments = await Payment.countDocuments({
+status:"pending"
+})
+
+const tickets = await Ticket.countDocuments({
+status:"open"
+})
+
+const payments = await Payment.find({
+status:"approved"
+})
 
 let revenue = 0
 
@@ -31,16 +50,24 @@ revenue += Number(p.amount)
 })
 
 res.json({
+
 users,
 orders,
+runningOrders,
+completedOrders,
+pendingPayments,
+tickets,
 revenue
+
 })
 
 }catch(err){
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
@@ -64,7 +91,9 @@ res.json(users)
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
@@ -80,8 +109,8 @@ try{
 
 const payments = await Payment
 .find()
-.sort({createdAt:-1})
 .populate("userId","username email")
+.sort({createdAt:-1})
 
 res.json(payments)
 
@@ -89,7 +118,9 @@ res.json(payments)
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
@@ -145,7 +176,9 @@ balance:user.balance
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
@@ -177,7 +210,9 @@ message:"Đã từ chối bill"
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
@@ -229,7 +264,6 @@ user.balance -= money
 }else{
 
 return res.json({error:"Type không hợp lệ"})
-
 }
 
 await user.save()
@@ -252,7 +286,9 @@ balance:user.balance
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
@@ -268,9 +304,9 @@ try{
 
 const logs = await Transaction
 .find()
+.populate("userId","username")
 .sort({createdAt:-1})
 .limit(100)
-.populate("userId","username")
 
 res.json(logs)
 
@@ -278,7 +314,9 @@ res.json(logs)
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
@@ -303,7 +341,9 @@ res.json(tickets)
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
@@ -317,7 +357,9 @@ router.get("/ticket/:id", auth, admin, async (req,res)=>{
 
 try{
 
-const ticket = await Ticket.findById(req.params.id)
+const ticket = await Ticket
+.findById(req.params.id)
+.populate("userId","username")
 
 if(!ticket){
 return res.json({error:"Ticket không tồn tại"})
@@ -329,7 +371,9 @@ res.json(ticket)
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
@@ -362,7 +406,9 @@ message:"Đã trả lời ticket"
 
 console.log(err)
 
-res.status(500).json({error:"Server error"})
+res.status(500).json({
+error:"Server error"
+})
 
 }
 
