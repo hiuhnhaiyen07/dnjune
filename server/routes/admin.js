@@ -19,7 +19,6 @@ const router = express.Router()
 router.get("/stats", auth, admin, async (req,res)=>{
 
 const users = await User.countDocuments()
-
 const orders = await Order.countDocuments()
 
 const payments = await Payment.find({status:"approved"})
@@ -39,6 +38,20 @@ revenue
 })
 
 /* =========================
+   LIST PAYMENTS (ADMIN)
+========================= */
+
+router.get("/payments", auth, admin, async (req,res)=>{
+
+const payments = await Payment
+.find()
+.sort({createdAt:-1})
+
+res.json(payments)
+
+})
+
+/* =========================
    APPROVE PAYMENT
 ========================= */
 
@@ -48,6 +61,10 @@ const payment = await Payment.findById(req.params.id)
 
 if(!payment){
 return res.json({error:"Payment không tồn tại"})
+}
+
+if(payment.status==="approved"){
+return res.json({error:"Bill đã duyệt"})
 }
 
 payment.status="approved"
@@ -67,6 +84,66 @@ message:"Đã cộng tiền"
 })
 
 /* =========================
+   REJECT PAYMENT
+========================= */
+
+router.post("/reject/:id", auth, admin, async (req,res)=>{
+
+const payment = await Payment.findById(req.params.id)
+
+if(!payment){
+return res.json({error:"Payment không tồn tại"})
+}
+
+payment.status="rejected"
+
+await payment.save()
+
+res.json({
+message:"Đã từ chối bill"
+})
+
+})
+
+/* =========================
+   MANUAL BALANCE
+========================= */
+
+router.post("/balance/:id", auth, admin, async (req,res)=>{
+
+try{
+
+const { amount, type } = req.body
+
+const user = await User.findById(req.params.id)
+
+if(!user){
+return res.json({error:"User không tồn tại"})
+}
+
+if(type==="add"){
+user.balance += Number(amount)
+}
+
+if(type==="sub"){
+user.balance -= Number(amount)
+}
+
+await user.save()
+
+res.json({
+message:"Đã cập nhật số dư"
+})
+
+}catch(err){
+
+res.status(500).json({error:"Server error"})
+
+}
+
+})
+
+/* =========================
    LIST SERVICES
 ========================= */
 
@@ -79,7 +156,7 @@ res.json(services)
 })
 
 /* =========================
-   ADD SERVICE MANUAL
+   ADD SERVICE
 ========================= */
 
 router.post("/service-add", auth, admin, async (req,res)=>{
@@ -87,14 +164,12 @@ router.post("/service-add", auth, admin, async (req,res)=>{
 const { service, name, rate, min, max } = req.body
 
 await Service.create({
-
 service,
 name,
 rate,
 min,
 max,
 enabled:true
-
 })
 
 res.json({
@@ -169,14 +244,12 @@ const exist = await Service.findOne({service:s.service})
 if(!exist){
 
 await Service.create({
-
 service:s.service,
 name:s.name,
 rate:s.rate,
 min:s.min,
 max:s.max,
 enabled:true
-
 })
 
 }
