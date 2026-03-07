@@ -6,9 +6,7 @@ const admin = require("../middleware/admin")
 const User = require("../models/User")
 const Payment = require("../models/Payment")
 const Order = require("../models/Order")
-const Service = require("../models/Service")
-
-const { getServices } = require("../utils/smmApi")
+const Transaction = require("../models/Transaction")
 
 const router = express.Router()
 
@@ -17,6 +15,8 @@ const router = express.Router()
 ========================= */
 
 router.get("/stats", auth, admin, async (req,res)=>{
+
+try{
 
 const users = await User.countDocuments()
 const orders = await Order.countDocuments()
@@ -35,10 +35,30 @@ orders,
 revenue
 })
 
+}catch(err){
+
+res.status(500).json({error:"Server error"})
+
+}
+
 })
 
 /* =========================
-   LIST PAYMENTS (ADMIN)
+   LIST USERS
+========================= */
+
+router.get("/users", auth, admin, async (req,res)=>{
+
+const users = await User
+.find()
+.sort({createdAt:-1})
+
+res.json(users)
+
+})
+
+/* =========================
+   LIST PAYMENTS
 ========================= */
 
 router.get("/payments", auth, admin, async (req,res)=>{
@@ -77,6 +97,15 @@ user.balance += payment.amount
 
 await user.save()
 
+await Transaction.create({
+
+userId:user._id,
+type:"deposit",
+amount:payment.amount,
+note:"Nạp tiền"
+
+})
+
 res.json({
 message:"Đã cộng tiền"
 })
@@ -109,13 +138,13 @@ message:"Đã từ chối bill"
    MANUAL BALANCE
 ========================= */
 
-router.post("/balance/:id", auth, admin, async (req,res)=>{
+router.post("/manual-balance", auth, admin, async (req,res)=>{
 
 try{
 
-const { amount, type } = req.body
+const { username, amount, type, reason } = req.body
 
-const user = await User.findById(req.params.id)
+const user = await User.findOne({username})
 
 if(!user){
 return res.json({error:"User không tồn tại"})
@@ -131,6 +160,15 @@ user.balance -= Number(amount)
 
 await user.save()
 
+await Transaction.create({
+
+userId:user._id,
+type:type==="add" ? "admin_add" : "admin_sub",
+amount:amount,
+note:reason
+
+})
+
 res.json({
 message:"Đã cập nhật số dư"
 })
@@ -144,121 +182,17 @@ res.status(500).json({error:"Server error"})
 })
 
 /* =========================
-   LIST SERVICES
+   TRANSACTION LOG
 ========================= */
 
-router.get("/services", auth, admin, async (req,res)=>{
+router.get("/transactions", auth, admin, async (req,res)=>{
 
-const services = await Service.find()
+const logs = await Transaction
+.find()
+.sort({createdAt:-1})
+.limit(100)
 
-res.json(services)
-
-})
-
-/* =========================
-   ADD SERVICE
-========================= */
-
-router.post("/service-add", auth, admin, async (req,res)=>{
-
-const { service, name, rate, min, max } = req.body
-
-await Service.create({
-service,
-name,
-rate,
-min,
-max,
-enabled:true
-})
-
-res.json({
-message:"Service added"
-})
-
-})
-
-/* =========================
-   UPDATE SERVICE RATE
-========================= */
-
-router.post("/service-rate/:id", auth, admin, async (req,res)=>{
-
-const { rate } = req.body
-
-await Service.findByIdAndUpdate(
-req.params.id,
-{ rate }
-)
-
-res.json({
-message:"Rate updated"
-})
-
-})
-
-/* =========================
-   TOGGLE SERVICE
-========================= */
-
-router.post("/service-toggle/:id", auth, admin, async (req,res)=>{
-
-const service = await Service.findById(req.params.id)
-
-service.enabled = !service.enabled
-
-await service.save()
-
-res.json({
-message:"Status updated"
-})
-
-})
-
-/* =========================
-   DELETE SERVICE
-========================= */
-
-router.delete("/service-delete/:id", auth, admin, async (req,res)=>{
-
-await Service.findByIdAndDelete(req.params.id)
-
-res.json({
-message:"Service deleted"
-})
-
-})
-
-/* =========================
-   SYNC SERVICES FROM API
-========================= */
-
-router.post("/services/sync", auth, admin, async (req,res)=>{
-
-const services = await getServices()
-
-for(const s of services){
-
-const exist = await Service.findOne({service:s.service})
-
-if(!exist){
-
-await Service.create({
-service:s.service,
-name:s.name,
-rate:s.rate,
-min:s.min,
-max:s.max,
-enabled:true
-})
-
-}
-
-}
-
-res.json({
-message:"Sync completed"
-})
+res.json(logs)
 
 })
 
