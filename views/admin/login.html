@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Login</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+<div class="bg-white p-8 rounded-xl shadow w-80">
+
+<h2 class="text-xl font-bold mb-6 text-center">
+ADMIN LOGIN
+</h2>
+
+<input id="email"
+placeholder="Email admin"
+class="w-full border p-3 mb-4 rounded">
+
+<input id="password"
+type="password"
+placeholder="Password"
+class="w-full border p-3 mb-4 rounded">
+
+<input id="key"
+placeholder="Admin Key"
+class="w-full border p-3 mb-4 rounded">
+
+<button onclick="loginAdmin()"
+class="w-full bg-blue-600 text-white py-3 rounded">
+
+Đăng nhập
+
+</button>
+
+<p id="msg" class="text-red-500 text-sm mt-3 text-center"></p>
+
+</div>
+
+<script>
+
+async function loginAdmin(){
+
+const email=document.getElementById("email").value
+const password=document.getElementById("password").value
+const key=document.getElementById("key").value
+const msg=document.getElementById("msg")
+
+msg.innerText=""
+
+if(key!=="SMMADMIN2026"){
+msg.innerText="Sai Admin Key"
+return
+}
+
+const res=await fetch("/api/auth/login",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+email,
+password
+})
+
+})
+
+const data=await res.json()
+
+if(data.token){
+
+localStorage.setItem("token",data.token)
+
+window.location="/admin/dashboard.html"
+
+}else{
+
+msg.innerText="Sai email hoặc password"
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
