@@ -87,3 +87,15 @@ price:s.rate*1.5
 res.json({message:"Sync completed"})
 
 })
+
+/* UPDATE SERVICE PRICE */
+
+router.post("/service-price/:id",auth,admin,async(req,res)=>{
+
+await Service.findByIdAndUpdate(req.params.id,{
+price:req.body.price
+})
+
+res.json({message:"Price updated"})
+
+})
