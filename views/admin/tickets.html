@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Tickets</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:#f4f7fb;
+}
+
+.sidebar{
+background:#020617;
+}
+
+.card{
+background:white;
+border-radius:18px;
+box-shadow:0 10px 25px rgba(0,0,0,0.06);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="flex h-screen">
+
+<!-- SIDEBAR -->
+
+<div class="sidebar w-64 text-white flex flex-col">
+
+<div class="p-6 text-2xl font-bold border-b border-gray-700">
+ADMIN PANEL
+</div>
+
+<nav class="flex-1 p-4 space-y-2">
+
+<a href="dashboard.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Dashboard
+</a>
+
+<a href="users.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Users
+</a>
+
+<a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Orders
+</a>
+
+<a href="payments.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Deposits
+</a>
+
+<a href="tickets.html" class="block px-4 py-3 rounded-lg bg-blue-600">
+Tickets
+</a>
+
+</nav>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="flex-1 flex flex-col">
+
+<header class="bg-white shadow-sm p-4">
+
+<h1 class="text-lg font-semibold">
+Hỗ trợ khách hàng
+</h1>
+
+</header>
+
+<main class="p-6 overflow-y-auto">
+
+<div class="card p-6">
+
+<table class="w-full text-sm">
+
+<thead>
+
+<tr class="border-b text-gray-600">
+
+<th class="py-3 text-left">User</th>
+<th>Tiêu đề</th>
+<th>Status</th>
+<th>Ngày</th>
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="ticketTable"></tbody>
+
+</table>
+
+</div>
+
+</main>
+
+</div>
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("token")
+
+let tickets=[]
+
+/* LOAD TICKETS */
+
+async function loadTickets(){
+
+const res = await fetch("/api/admin/tickets",{
+headers:{
+Authorization:"Bearer "+token
+}
+})
+
+tickets = await res.json()
+
+renderTickets()
+
+}
+
+function renderTickets(){
+
+const table = document.getElementById("ticketTable")
+
+table.innerHTML=""
+
+tickets.forEach(t=>{
+
+const tr = document.createElement("tr")
+
+tr.className="border-b"
+
+tr.innerHTML=`
+
+<td class="py-3">${t.username}</td>
+
+<td>${t.subject}</td>
+
+<td>${t.status}</td>
+
+<td>${new Date(t.createdAt).toLocaleDateString()}</td>
+
+<td>
+
+<button onclick="viewTicket('${t._id}')"
+class="bg-blue-600 text-white px-3 py-1 rounded">
+Xem
+</button>
+
+</td>
+
+`
+
+table.appendChild(tr)
+
+})
+
+}
+
+/* VIEW TICKET */
+
+async function viewTicket(id){
+
+const res = await fetch("/api/admin/ticket/"+id,{
+headers:{
+Authorization:"Bearer "+token
+}
+})
+
+const data = await res.json()
+
+const reply = prompt(
+"User: "+data.username+
+"\n\n"+data.message+
+"\n\nNhập phản hồi:"
+)
+
+if(!reply) return
+
+await fetch("/api/admin/ticket-reply/"+id,{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json",
+Authorization:"Bearer "+token
+},
+
+body:JSON.stringify({
+reply
+})
+
+})
+
+alert("Đã gửi phản hồi")
+
+loadTickets()
+
+}
+
+loadTickets()
+
+</script>
+
+</body>
+
+</html>
