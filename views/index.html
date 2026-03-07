@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="vi" x-data="{dark:false, menu:false}">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SMM Panel - Dịch vụ mạng xã hội</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:linear-gradient(135deg,#f0f7ff,#ffffff);
+}
+
+.glass{
+backdrop-filter:blur(20px);
+background:rgba(255,255,255,0.7);
+border:1px solid rgba(255,255,255,0.3);
+}
+
+.dark body{
+background:#0f172a;
+}
+
+</style>
+
+</head>
+
+<body class="text-gray-800">
+
+<!-- NAVBAR -->
+
+<nav class="glass fixed w-full top-0 z-50">
+
+<div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+<div class="text-2xl font-bold text-blue-600">
+SMM PANEL
+</div>
+
+<div class="hidden md:flex space-x-8">
+
+<a href="#features" class="hover:text-blue-600">Tính năng</a>
+<a href="#price" class="hover:text-blue-600">Bảng giá</a>
+<a href="#guide" class="hover:text-blue-600">Hướng dẫn</a>
+
+</div>
+
+<div class="flex items-center space-x-4">
+
+<a href="login.html"
+class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+Đăng nhập
+</a>
+
+<a href="register.html"
+class="px-4 py-2 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white">
+Đăng ký
+</a>
+
+</div>
+
+</div>
+
+</nav>
+
+<!-- HERO -->
+
+<section class="pt-32 pb-20">
+
+<div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+
+<div>
+
+<h1 class="text-5xl font-bold leading-tight mb-6">
+
+SMM Panel  
+<span class="text-blue-600">Tăng trưởng mạng xã hội</span>
+
+</h1>
+
+<p class="text-gray-600 mb-8">
+
+Panel cung cấp dịch vụ tăng like, follow, view cho
+Facebook, Instagram, TikTok, YouTube với tốc độ cực nhanh.
+
+</p>
+
+<div class="flex space-x-4">
+
+<a href="register.html"
+class="px-6 py-3 bg-blue-600 text-white rounded-2xl shadow-lg hover:bg-blue-700">
+
+Bắt đầu ngay
+
+</a>
+
+<a href="#guide"
+class="px-6 py-3 border rounded-2xl hover:bg-gray-100">
+
+Hướng dẫn
+
+</a>
+
+</div>
+
+</div>
+
+<div class="glass rounded-3xl p-8 shadow-xl">
+
+<div class="grid grid-cols-2 gap-6 text-center">
+
+<div>
+
+<div class="text-3xl font-bold text-blue-600">
+120K+
+</div>
+
+<div class="text-sm text-gray-500">
+Đơn hàng
+</div>
+
+</div>
+
+<div>
+
+<div class="text-3xl font-bold text-blue-600">
+30K+
+</div>
+
+<div class="text-sm text-gray-500">
+Người dùng
+</div>
+
+</div>
+
+<div>
+
+<div class="text-3xl font-bold text-blue-600">
+500+
+</div>
+
+<div class="text-sm text-gray-500">
+Dịch vụ
+</div>
+
+</div>
+
+<div>
+
+<div class="text-3xl font-bold text-blue-600">
+24/7
+</div>
+
+<div class="text-sm text-gray-500">
+Hỗ trợ
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- FEATURES -->
+
+<section id="features" class="py-20">
+
+<div class="max-w-7xl mx-auto px-6">
+
+<h2 class="text-4xl font-bold text-center mb-16">
+Tính năng mạnh mẽ
+</h2>
+
+<div class="grid md:grid-cols-3 gap-8">
+
+<div class="glass p-8 rounded-3xl shadow-lg">
+
+<h3 class="text-xl font-semibold mb-4">
+API tốc độ cao
+</h3>
+
+<p class="text-gray-600">
+Kết nối trực tiếp với nhà cung cấp SMM,
+tốc độ xử lý đơn hàng nhanh.
+</p>
+
+</div>
+
+<div class="glass p-8 rounded-3xl shadow-lg">
+
+<h3 class="text-xl font-semibold mb-4">
+Dashboard thông minh
+</h3>
+
+<p class="text-gray-600">
+Quản lý đơn hàng, số dư,
+thống kê trực quan.
+</p>
+
+</div>
+
+<div class="glass p-8 rounded-3xl shadow-lg">
+
+<h3 class="text-xl font-semibold mb-4">
+Bảo mật cao
+</h3>
+
+<p class="text-gray-600">
+Hệ thống JWT authentication
+và bảo mật dữ liệu.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- PRICING -->
+
+<section id="price" class="py-20 bg-gray-50">
+
+<div class="max-w-7xl mx-auto px-6">
+
+<h2 class="text-4xl font-bold text-center mb-16">
+Bảng giá
+</h2>
+
+<div class="grid md:grid-cols-3 gap-10">
+
+<div class="glass p-8 rounded-3xl text-center">
+
+<h3 class="text-xl font-semibold mb-4">
+Starter
+</h3>
+
+<div class="text-4xl font-bold mb-6">
+100K
+</div>
+
+<p class="text-gray-600 mb-6">
+Phù hợp người mới
+</p>
+
+<a href="register.html"
+class="bg-blue-600 text-white px-6 py-3 rounded-xl">
+Mua ngay
+</a>
+
+</div>
+
+<div class="glass p-8 rounded-3xl text-center border-2 border-blue-600">
+
+<h3 class="text-xl font-semibold mb-4">
+Pro
+</h3>
+
+<div class="text-4xl font-bold mb-6">
+500K
+</div>
+
+<p class="text-gray-600 mb-6">
+Dành cho reseller
+</p>
+
+<a href="register.html"
+class="bg-blue-600 text-white px-6 py-3 rounded-xl">
+Mua ngay
+</a>
+
+</div>
+
+<div class="glass p-8 rounded-3xl text-center">
+
+<h3 class="text-xl font-semibold mb-4">
+Business
+</h3>
+
+<div class="text-4xl font-bold mb-6">
+1M
+</div>
+
+<p class="text-gray-600 mb-6">
+Doanh nghiệp
+</p>
+
+<a href="register.html"
+class="bg-blue-600 text-white px-6 py-3 rounded-xl">
+Mua ngay
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- GUIDE -->
+
+<section id="guide" class="py-20">
+
+<div class="max-w-5xl mx-auto px-6">
+
+<h2 class="text-4xl font-bold text-center mb-16">
+Hướng dẫn sử dụng
+</h2>
+
+<div class="space-y-8">
+
+<div class="glass p-6 rounded-2xl">
+1️⃣ Đăng ký tài khoản
+</div>
+
+<div class="glass p-6 rounded-2xl">
+2️⃣ Nạp tiền vào tài khoản
+</div>
+
+<div class="glass p-6 rounded-2xl">
+3️⃣ Chọn dịch vụ
+</div>
+
+<div class="glass p-6 rounded-2xl">
+4️⃣ Nhập link và đặt đơn
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- CTA -->
+
+<section class="py-20">
+
+<div class="max-w-4xl mx-auto text-center px-6">
+
+<h2 class="text-4xl font-bold mb-6">
+Bắt đầu tăng trưởng ngay hôm nay
+</h2>
+
+<a href="register.html"
+class="px-10 py-4 bg-blue-600 text-white rounded-2xl text-lg shadow-xl">
+
+Tạo tài khoản
+
+</a>
+
+</div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer class="py-10 border-t">
+
+<div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between">
+
+<div class="font-bold text-xl">
+SMM PANEL
+</div>
+
+<div class="text-gray-500">
+© 2026 All rights reserved
+</div>
+
+</div>
+
+</footer>
+
+</body>
+  </html>
