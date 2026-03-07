@@ -4,9 +4,8 @@ const auth = require("../middleware/auth")
 
 const router = express.Router()
 
-/* GET SERVICES */
-
 router.get("/", auth, async (req, res) => {
+
   try {
 
     const services = await Service.find({ enabled: true })
@@ -18,6 +17,7 @@ router.get("/", auth, async (req, res) => {
     res.status(500).json({ error: "Server error" })
 
   }
+
 })
 
 module.exports = router
