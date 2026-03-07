@@ -134,17 +134,11 @@ Dashboard
 
 </div>
 
-<div class="flex items-center gap-4">
-
 <div class="font-medium" id="username">
 User
 </div>
 
-</div>
-
 </header>
-
-<!-- CONTENT -->
 
 <main class="p-6 overflow-y-auto">
 
@@ -154,9 +148,7 @@ User
 
 <div class="card p-6">
 
-<p class="text-gray-500 text-sm">
-Số dư
-</p>
+<p class="text-gray-500 text-sm">Số dư</p>
 
 <h2 class="text-2xl font-bold text-blue-600" id="balance">
 0 VND
@@ -166,37 +158,25 @@ Số dư
 
 <div class="card p-6">
 
-<p class="text-gray-500 text-sm">
-Tổng đơn
-</p>
+<p class="text-gray-500 text-sm">Tổng đơn</p>
 
-<h2 class="text-2xl font-bold" id="totalOrders">
-0
-</h2>
+<h2 class="text-2xl font-bold" id="totalOrders">0</h2>
 
 </div>
 
 <div class="card p-6">
 
-<p class="text-gray-500 text-sm">
-Đang chạy
-</p>
+<p class="text-gray-500 text-sm">Đang chạy</p>
 
-<h2 class="text-2xl font-bold text-yellow-500" id="runningOrders">
-0
-</h2>
+<h2 class="text-2xl font-bold text-yellow-500" id="runningOrders">0</h2>
 
 </div>
 
 <div class="card p-6">
 
-<p class="text-gray-500 text-sm">
-Hoàn thành
-</p>
+<p class="text-gray-500 text-sm">Hoàn thành</p>
 
-<h2 class="text-2xl font-bold text-green-500" id="completedOrders">
-0
-</h2>
+<h2 class="text-2xl font-bold text-green-500" id="completedOrders">0</h2>
 
 </div>
 
@@ -206,47 +186,29 @@ Hoàn thành
 
 <div class="card p-6 mb-8">
 
-<h3 class="font-semibold mb-4">
-Tạo đơn nhanh
-</h3>
+<h3 class="font-semibold mb-4">Tạo đơn nhanh</h3>
 
 <div class="grid md:grid-cols-3 gap-4">
 
 <select id="service" class="border p-3 rounded-lg"></select>
 
-<input
-type="text"
-id="link"
-placeholder="Link bài viết"
-class="border p-3 rounded-lg"
-/>
+<input type="text" id="link" placeholder="Link bài viết" class="border p-3 rounded-lg"/>
 
-<input
-type="number"
-id="quantity"
-placeholder="Số lượng"
-class="border p-3 rounded-lg"
-/>
+<input type="number" id="quantity" placeholder="Số lượng" class="border p-3 rounded-lg"/>
 
 </div>
 
-<button
-onclick="createOrder()"
-class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg">
-
+<button onclick="createOrder()" class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg">
 Đặt đơn
-
 </button>
 
 </div>
 
-<!-- RECENT ORDERS -->
+<!-- ORDERS -->
 
 <div class="card p-6">
 
-<h3 class="font-semibold mb-4">
-Đơn gần đây
-</h3>
+<h3 class="font-semibold mb-4">Đơn gần đây</h3>
 
 <table class="w-full text-sm">
 
@@ -287,18 +249,24 @@ window.location="login.html"
 
 async function loadUser(){
 
+try{
+
 const res = await fetch("/api/user/me",{
-headers:{
-Authorization:"Bearer "+token
-}
+headers:{ Authorization:"Bearer "+token }
 })
 
 const user = await res.json()
+
+if(user.error) return
 
 document.getElementById("username").innerText = user.username
 
 document.getElementById("balance").innerText =
 Number(user.balance).toLocaleString()+" VND"
+
+}catch(e){
+console.log("load user error")
+}
 
 }
 
@@ -307,9 +275,7 @@ Number(user.balance).toLocaleString()+" VND"
 async function loadServices(){
 
 const res = await fetch("/api/services",{
-headers:{
-Authorization:"Bearer "+token
-}
+headers:{ Authorization:"Bearer "+token }
 })
 
 const data = await res.json()
@@ -323,8 +289,7 @@ data.forEach(s=>{
 const opt = document.createElement("option")
 
 opt.value = s.service
-
-opt.textContent = s.name + " - " + s.rate
+opt.textContent = s.name+" - "+s.rate
 
 select.appendChild(opt)
 
@@ -333,23 +298,7 @@ select.appendChild(opt)
 }
 
 /* CREATE ORDER */
-async function loadUser(){
 
-const res = await fetch("/api/user/me",{
-headers:{
-Authorization:"Bearer "+token
-}
-})
-
-const user = await res.json()
-
-document.getElementById("username").innerText = user.username
-
-document.getElementById("balance").innerText =
-Number(user.balance).toLocaleString()+" VND"
-
-}
-  
 async function createOrder(){
 
 const service = document.getElementById("service").value
@@ -376,6 +325,7 @@ quantity
 alert("Đặt đơn thành công")
 
 loadOrders()
+loadUser()
 
 }
 
@@ -384,9 +334,7 @@ loadOrders()
 async function loadOrders(){
 
 const res = await fetch("/api/orders/my",{
-headers:{
-Authorization:"Bearer "+token
-}
+headers:{ Authorization:"Bearer "+token }
 })
 
 const data = await res.json()
@@ -395,32 +343,30 @@ const table = document.getElementById("ordersTable")
 
 table.innerHTML=""
 
-let running = 0
-let completed = 0
+let running=0
+let completed=0
 
 data.slice(0,5).forEach(o=>{
 
 if(o.status==="processing") running++
 if(o.status==="completed") completed++
 
-const tr = document.createElement("tr")
+const tr=document.createElement("tr")
 
 tr.innerHTML=`
-
 <td>${o._id}</td>
 <td>${o.service}</td>
 <td>${o.link}</td>
 <td>${o.status}</td>
-
 `
 
 table.appendChild(tr)
 
 })
 
-document.getElementById("totalOrders").innerText = data.length
-document.getElementById("runningOrders").innerText = running
-document.getElementById("completedOrders").innerText = completed
+document.getElementById("totalOrders").innerText=data.length
+document.getElementById("runningOrders").innerText=running
+document.getElementById("completedOrders").innerText=completed
 
 }
 
@@ -429,7 +375,6 @@ document.getElementById("completedOrders").innerText = completed
 function logout(){
 
 localStorage.removeItem("token")
-
 window.location="login.html"
 
 }
@@ -444,25 +389,21 @@ setInterval(loadUser,10000)
 
 /* SIDEBAR */
 
-const menuBtn = document.getElementById("menuBtn")
-const sidebar = document.getElementById("sidebar")
-const overlay = document.getElementById("overlay")
+const menuBtn=document.getElementById("menuBtn")
+const sidebar=document.getElementById("sidebar")
+const overlay=document.getElementById("overlay")
 
 menuBtn.addEventListener("click",()=>{
-
 sidebar.classList.toggle("open")
 overlay.classList.toggle("show")
-
 })
 
 overlay.addEventListener("click",()=>{
-
 sidebar.classList.remove("open")
 overlay.classList.remove("show")
-
 })
 
 </script>
 
 </body>
-  </html>
+</html>
