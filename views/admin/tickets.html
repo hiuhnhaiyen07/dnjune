@@ -189,7 +189,7 @@ Authorization:"Bearer "+token
 const data = await res.json()
 
 const reply = prompt(
-"User: "+data.username+
+"User: "+(data.userId?.username || "Unknown")
 "\n\n"+data.message+
 "\n\nNhập phản hồi:"
 )
