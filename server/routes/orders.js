@@ -7,6 +7,7 @@ const { createOrder, checkStatus } = require("../utils/smmApi")
 
 const Order = require("../models/Order")
 const User = require("../models/User")
+const Service = require("../models/Service")
 const Transaction = require("../models/Transaction")
 
 const router = express.Router()
@@ -15,83 +16,130 @@ const router = express.Router()
 
 router.post("/create", auth, antiSpam, async (req, res) => {
 
-  try {
+try{
 
-    const { service, link, quantity, price } = req.body
+const { service, link, quantity } = req.body
 
-    const user = await User.findById(req.user.id)
+/* FIND SERVICE */
 
-    if (user.balance < price) {
-      return res.json({ error: "Không đủ số dư" })
-    }
+const s = await Service.findOne({ service })
 
-    const api = await createOrder(service, link, quantity)
+if(!s){
+return res.json({ error:"Service không tồn tại" })
+}
 
-    const order = new Order({
-      userId: user._id,
-      service,
-      link,
-      quantity,
-      price,
-      status: "processing",
-      apiOrderId: api.order
-    })
+/* CHECK MIN MAX */
 
-    await order.save()
+if(quantity < s.min || quantity > s.max){
+return res.json({ error:"Số lượng không hợp lệ" })
+}
 
-    user.balance -= price
-    await user.save()
+/* CALCULATE PRICE */
 
-    await Transaction.create({
-      userId: user._id,
-      type: "order",
-      amount: -price,
-      note: "Order " + order._id
-    })
+const price = (quantity / 1000) * s.rate
 
-    res.json({ message: "Đặt đơn thành công" })
+/* FIND USER */
 
-  } catch (err) {
+const user = await User.findById(req.user.id)
 
-    res.status(500).json({ error: "Server error" })
+if(user.balance < price){
+return res.json({ error:"Không đủ số dư" })
+}
 
-  }
+/* SEND ORDER TO PROVIDER */
+
+const api = await createOrder(service, link, quantity)
+
+if(!api || !api.order){
+return res.json({ error:"Provider lỗi" })
+}
+
+/* CREATE ORDER */
+
+const order = new Order({
+userId: user._id,
+service,
+link,
+quantity,
+price,
+status:"processing",
+apiOrderId: api.order
+})
+
+await order.save()
+
+/* UPDATE BALANCE */
+
+user.balance -= price
+await user.save()
+
+/* TRANSACTION */
+
+await Transaction.create({
+userId:user._id,
+type:"order",
+amount:-price,
+note:"Order "+order._id
+})
+
+res.json({
+message:"Đặt đơn thành công",
+orderId:order._id
+})
+
+}catch(err){
+
+console.log(err)
+
+res.status(500).json({
+error:"Server error"
+})
+
+}
 
 })
 
 /* CHECK STATUS */
 
-router.get("/status/:id", auth, async (req, res) => {
+router.get("/status/:id", auth, async (req,res)=>{
 
-  try {
+try{
 
-    const order = await Order.findById(req.params.id)
+const order = await Order.findById(req.params.id)
 
-    const status = await checkStatus(order.apiOrderId)
+if(!order){
+return res.json({error:"Order không tồn tại"})
+}
 
-    order.status = status.status
+if(String(order.userId) !== req.user.id){
+return res.json({error:"Không có quyền"})
+}
 
-    await order.save()
+const status = await checkStatus(order.apiOrderId)
 
-    res.json(status)
+order.status = status.status
 
-  } catch (err) {
+await order.save()
 
-    res.status(500).json({ error: "Server error" })
+res.json(status)
 
-  }
+}catch(err){
+
+res.status(500).json({error:"Server error"})
+
+}
 
 })
 
 /* USER ORDERS */
 
-router.get("/my", auth, async (req, res) => {
+router.get("/my", auth, async (req,res)=>{
 
-  const orders = await Order
-    .find({ userId: req.user.id })
-    .sort({ createdAt: -1 })
+const orders = await Order
+.find({userId:req.user.id})
+.sort({createdAt:-1})
 
-  res.json(orders)
+res.json(orders)
 
 })
 
