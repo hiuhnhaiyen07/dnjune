@@ -29,19 +29,43 @@ border-radius:18px;
 box-shadow:0 10px 25px rgba(0,0,0,0.06);
 }
 
-.status-processing{
-color:#f59e0b;
-font-weight:600;
+.status-processing{color:#f59e0b;font-weight:600;}
+.status-completed{color:#16a34a;font-weight:600;}
+.status-canceled{color:#ef4444;font-weight:600;}
+
+#sidebar{
+transition:all .3s;
 }
 
-.status-completed{
-color:#16a34a;
-font-weight:600;
+@media (max-width:768px){
+
+#sidebar{
+position:fixed;
+left:-260px;
+top:0;
+height:100%;
+z-index:50;
 }
 
-.status-canceled{
-color:#ef4444;
-font-weight:600;
+#sidebar.open{
+left:0;
+}
+
+}
+
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.4);
+display:none;
+z-index:40;
+}
+
+#overlay.show{
+display:block;
 }
 
 </style>
@@ -50,11 +74,13 @@ font-weight:600;
 
 <body>
 
+<div id="overlay"></div>
+
 <div class="flex h-screen">
 
 <!-- SIDEBAR -->
 
-<div class="sidebar w-64 text-white flex flex-col">
+<div id="sidebar" class="sidebar w-64 text-white flex flex-col">
 
 <div class="p-6 text-2xl font-bold border-b border-gray-700">
 ADMIN PANEL
@@ -62,24 +88,36 @@ ADMIN PANEL
 
 <nav class="flex-1 p-4 space-y-2">
 
-<a href="dashboard.html"
-class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+<a href="dashboard.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
 Dashboard
 </a>
 
-<a href="users.html"
-class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+<a href="users.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
 Users
 </a>
 
-<a href="orders.html"
-class="block px-4 py-3 rounded-lg bg-blue-600">
+<a href="orders.html" class="block px-4 py-3 rounded-lg bg-blue-600">
 Orders
 </a>
 
-<a href="payments.html"
-class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Services
+</a>
+
+<a href="payments.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
 Deposits
+</a>
+
+<a href="profit.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Profit
+</a>
+
+<a href="logs.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Logs
+</a>
+
+<a href="settings.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Settings
 </a>
 
 </nav>
@@ -90,11 +128,19 @@ Deposits
 
 <div class="flex-1 flex flex-col">
 
-<header class="bg-white shadow-sm p-4 flex justify-between">
+<header class="bg-white shadow-sm p-4 flex items-center justify-between">
+
+<div class="flex items-center gap-3">
+
+<button id="menuBtn" class="text-2xl md:hidden">
+☰
+</button>
 
 <h1 class="font-semibold text-lg">
 Quản lý đơn hàng
 </h1>
+
+</div>
 
 <input
 id="search"
@@ -106,7 +152,7 @@ class="border px-3 py-2 rounded"
 
 <main class="p-6 overflow-y-auto">
 
-<div class="card p-6">
+<div class="card p-6 overflow-x-auto">
 
 <table class="w-full text-sm">
 
@@ -114,49 +160,21 @@ class="border px-3 py-2 rounded"
 
 <tr class="border-b text-gray-600">
 
-<th class="py-3 text-left">
-Order ID
-</th>
-
-<th>
-User
-</th>
-
-<th>
-Service
-</th>
-
-<th>
-Link
-</th>
-
-<th>
-Quantity
-</th>
-
-<th>
-Price
-</th>
-
-<th>
-Status
-</th>
-
-<th>
-Date
-</th>
-
-<th>
-Action
-</th>
+<th class="py-3 text-left">Order ID</th>
+<th>User</th>
+<th>Service</th>
+<th>Link</th>
+<th>Quantity</th>
+<th>Price</th>
+<th>Status</th>
+<th>Date</th>
+<th>Action</th>
 
 </tr>
 
 </thead>
 
-<tbody id="ordersTable">
-
-</tbody>
+<tbody id="ordersTable"></tbody>
 
 </table>
 
@@ -171,9 +189,15 @@ Action
 <script>
 
 const token=localStorage.getItem("token")
+const user=JSON.parse(localStorage.getItem("user")||"{}")
 
 if(!token){
 window.location="../login.html"
+}
+
+if(user.role!=="admin"){
+alert("Không có quyền admin")
+window.location="../dashboard.html"
 }
 
 let orders=[]
@@ -182,24 +206,25 @@ let orders=[]
 
 async function loadOrders(){
 
+try{
+
 const res=await fetch("/api/admin/orders",{
-
-headers:{
-Authorization:"Bearer "+token
-}
-
+headers:{Authorization:"Bearer "+token}
 })
 
 orders=await res.json()
 
 renderOrders(orders)
 
+}catch{
+console.log("API lỗi")
+}
+
 }
 
 function renderOrders(list){
 
 const table=document.getElementById("ordersTable")
-
 table.innerHTML=""
 
 list.forEach(o=>{
@@ -217,24 +242,13 @@ tr.className="border-b hover:bg-gray-50"
 tr.innerHTML=`
 
 <td class="py-3">${o._id}</td>
-
-<td>${o.userId}</td>
-
+<td>${o.userId || "-"}</td>
 <td>${o.service}</td>
-
-<td class="truncate max-w-xs">${o.link}</td>
-
+<td class="truncate max-w-xs">${o.link || "-"}</td>
 <td>${o.quantity}</td>
-
 <td>${o.price} VND</td>
-
-<td class="${statusClass}">
-${o.status}
-</td>
-
-<td>
-${new Date(o.createdAt).toLocaleDateString()}
-</td>
+<td class="${statusClass}">${o.status}</td>
+<td>${new Date(o.createdAt).toLocaleDateString()}</td>
 
 <td class="space-x-2">
 
@@ -265,7 +279,7 @@ document.getElementById("search").addEventListener("input",(e)=>{
 const keyword=e.target.value.toLowerCase()
 
 const filtered=orders.filter(o=>
-o.link.toLowerCase().includes(keyword)
+(o.link || "").toLowerCase().includes(keyword)
 )
 
 renderOrders(filtered)
@@ -281,16 +295,12 @@ const status=prompt("Nhập status mới (processing/completed/canceled)")
 if(!status) return
 
 await fetch("/api/admin/order-status/"+id,{
-
 method:"POST",
-
 headers:{
 "Content-Type":"application/json",
 Authorization:"Bearer "+token
 },
-
 body:JSON.stringify({status})
-
 })
 
 loadOrders()
@@ -304,16 +314,31 @@ async function deleteOrder(id){
 if(!confirm("Xóa đơn này?")) return
 
 await fetch("/api/admin/delete-order/"+id,{
-
 method:"DELETE",
-
-headers:{
-Authorization:"Bearer "+token
-}
-
+headers:{Authorization:"Bearer "+token}
 })
 
 loadOrders()
+
+}
+
+/* SIDEBAR */
+
+const menuBtn=document.getElementById("menuBtn")
+const sidebar=document.getElementById("sidebar")
+const overlay=document.getElementById("overlay")
+
+if(menuBtn){
+
+menuBtn.addEventListener("click",()=>{
+sidebar.classList.toggle("open")
+overlay.classList.toggle("show")
+})
+
+overlay.addEventListener("click",()=>{
+sidebar.classList.remove("open")
+overlay.classList.remove("show")
+})
 
 }
 
