@@ -29,6 +29,26 @@ border-radius:18px;
 box-shadow:0 10px 25px rgba(0,0,0,0.05);
 }
 
+#sidebar{
+transition:all .3s;
+}
+
+@media (max-width:768px){
+
+#sidebar{
+position:fixed;
+left:-260px;
+top:0;
+height:100%;
+z-index:50;
+}
+
+#sidebar.open{
+left:0;
+}
+
+}
+
 </style>
 
 </head>
@@ -39,7 +59,7 @@ box-shadow:0 10px 25px rgba(0,0,0,0.05);
 
 <!-- SIDEBAR -->
 
-<div class="sidebar w-64 text-white flex flex-col">
+<div id="sidebar" class="sidebar w-64 text-white flex flex-col">
 
 <div class="p-6 text-2xl font-bold border-b border-slate-700">
 SMM PANEL
@@ -79,7 +99,11 @@ Hỗ trợ
 
 <div class="flex-1 flex flex-col">
 
-<header class="bg-white shadow-sm p-4">
+<header class="bg-white shadow-sm p-4 flex items-center gap-3">
+
+<button id="menuBtn" class="text-2xl md:hidden">
+☰
+</button>
 
 <h1 class="text-lg font-semibold">
 Hỗ trợ khách hàng
@@ -100,20 +124,17 @@ Câu hỏi thường gặp
 <ul class="space-y-3 text-sm text-gray-600">
 
 <li>
-❓ Đơn bao lâu chạy?
-<br>
+❓ Đơn bao lâu chạy?<br>
 → Tùy dịch vụ, thường 1–10 phút.
 </li>
 
 <li>
-❓ Nếu đơn lỗi?
-<br>
+❓ Nếu đơn lỗi?<br>
 → Hệ thống sẽ hoàn tiền.
 </li>
 
 <li>
-❓ Nạp tiền bao lâu?
-<br>
+❓ Nạp tiền bao lâu?<br>
 → Admin duyệt trong 1–5 phút.
 </li>
 
@@ -138,7 +159,7 @@ class="w-full border p-3 rounded-lg"
 />
 
 <textarea
-id="message"
+id="ticketMessage"
 placeholder="Nội dung"
 class="w-full border p-3 rounded-lg h-32"
 ></textarea>
@@ -169,25 +190,15 @@ Ticket của bạn
 
 <tr class="border-b">
 
-<th class="text-left py-2">
-Tiêu đề
-</th>
-
-<th>
-Status
-</th>
-
-<th>
-Ngày
-</th>
+<th class="text-left py-2">Tiêu đề</th>
+<th>Status</th>
+<th>Ngày</th>
 
 </tr>
 
 </thead>
 
-<tbody id="ticketTable">
-
-</tbody>
+<tbody id="ticketTable"></tbody>
 
 </table>
 
@@ -204,14 +215,14 @@ Ngày
 const token = localStorage.getItem("token")
 
 if(!token){
-
 window.location="login.html"
-
 }
 
 /* LOAD TICKETS */
 
 async function loadTickets(){
+
+try{
 
 const res = await fetch("/api/tickets/my",{
 headers:{
@@ -223,13 +234,17 @@ const data = await res.json()
 
 const table = document.getElementById("ticketTable")
 
+table.innerHTML=""
+
 data.forEach(t=>{
 
 const tr=document.createElement("tr")
 
+tr.className="border-b"
+
 tr.innerHTML=`
 
-<td>${t.subject}</td>
+<td class="py-2">${t.subject}</td>
 <td>${t.status}</td>
 <td>${new Date(t.createdAt).toLocaleDateString()}</td>
 
@@ -239,6 +254,12 @@ table.appendChild(tr)
 
 })
 
+}catch(e){
+
+console.log("Ticket API lỗi")
+
+}
+
 }
 
 /* CREATE TICKET */
@@ -246,7 +267,12 @@ table.appendChild(tr)
 async function createTicket(){
 
 const subject=document.getElementById("subject").value
-const message=document.getElementById("message").value
+const message=document.getElementById("ticketMessage").value
+
+if(!subject || !message){
+alert("Nhập đầy đủ thông tin")
+return
+}
 
 await fetch("/api/tickets/create",{
 
@@ -269,6 +295,19 @@ alert("Đã gửi ticket")
 location.reload()
 
 }
+
+/* SIDEBAR */
+
+const menuBtn=document.getElementById("menuBtn")
+const sidebar=document.getElementById("sidebar")
+
+if(menuBtn){
+menuBtn.addEventListener("click",()=>{
+sidebar.classList.toggle("open")
+})
+}
+
+/* INIT */
 
 loadTickets()
 
