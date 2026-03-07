@@ -57,25 +57,21 @@ SMM PANEL
 
 <form id="loginForm" class="space-y-6">
 
-<!-- USERNAME -->
-
 <div>
 
 <label class="text-sm font-medium text-gray-600">
-Username
+Username hoặc Gmail
 </label>
 
 <input
 type="text"
 id="username"
-placeholder="Nhập username"
+placeholder="Nhập username hoặc gmail"
 required
 class="mt-2 w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-500 outline-none"
 />
 
 </div>
-
-<!-- PASSWORD -->
 
 <div>
 
@@ -106,25 +102,6 @@ Hiện
 
 </div>
 
-<!-- OPTIONS -->
-
-<div class="flex items-center justify-between text-sm">
-
-<label class="flex items-center gap-2">
-
-<input type="checkbox" id="remember">
-Ghi nhớ đăng nhập
-
-</label>
-
-<a href="#" class="text-blue-600 hover:underline">
-Quên mật khẩu?
-</a>
-
-</div>
-
-<!-- BUTTON -->
-
 <button
 type="submit"
 id="loginBtn"
@@ -134,13 +111,9 @@ class="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transitio
 
 </button>
 
-<!-- MESSAGE -->
-
-<div id="message" class="text-center text-sm"></div>
+<div id="message" class="text-center text-sm text-red-500"></div>
 
 </form>
-
-<!-- REGISTER -->
 
 <div class="text-center mt-6 text-sm">
 
@@ -163,13 +136,9 @@ function togglePassword(){
 const input=document.getElementById("password")
 
 if(input.type==="password"){
-
 input.type="text"
-
 }else{
-
 input.type="password"
-
 }
 
 }
@@ -209,7 +178,15 @@ const data=await res.json()
 
 if(data.token){
 
+/* LƯU TOKEN */
+
 localStorage.setItem("token",data.token)
+
+/* LƯU USER (QUAN TRỌNG CHO ADMIN) */
+
+localStorage.setItem("user",JSON.stringify(data.user))
+
+/* CHUYỂN TRANG */
 
 window.location="dashboard.html"
 
