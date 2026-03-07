@@ -7,6 +7,7 @@ const User = require("../models/User")
 const Payment = require("../models/Payment")
 const Order = require("../models/Order")
 const Transaction = require("../models/Transaction")
+const Ticket = require("../models/Ticket")
 
 const router = express.Router()
 
@@ -257,6 +258,83 @@ const logs = await Transaction
 .limit(100)
 
 res.json(logs)
+
+}catch(err){
+
+res.status(500).json({error:"Server error"})
+
+}
+
+})
+
+/* =========================
+   LIST TICKETS
+========================= */
+
+router.get("/tickets", auth, admin, async (req,res)=>{
+
+try{
+
+const tickets = await Ticket
+.find()
+.sort({createdAt:-1})
+
+res.json(tickets)
+
+}catch(err){
+
+res.status(500).json({error:"Server error"})
+
+}
+
+})
+
+/* =========================
+   VIEW TICKET
+========================= */
+
+router.get("/ticket/:id", auth, admin, async (req,res)=>{
+
+try{
+
+const ticket = await Ticket.findById(req.params.id)
+
+if(!ticket){
+return res.json({error:"Ticket không tồn tại"})
+}
+
+res.json(ticket)
+
+}catch(err){
+
+res.status(500).json({error:"Server error"})
+
+}
+
+})
+
+/* =========================
+   REPLY TICKET
+========================= */
+
+router.post("/ticket-reply/:id", auth, admin, async (req,res)=>{
+
+try{
+
+const ticket = await Ticket.findById(req.params.id)
+
+if(!ticket){
+return res.json({error:"Ticket không tồn tại"})
+}
+
+ticket.reply = req.body.reply
+ticket.status = "answered"
+
+await ticket.save()
+
+res.json({
+message:"Đã trả lời ticket"
+})
 
 }catch(err){
 
