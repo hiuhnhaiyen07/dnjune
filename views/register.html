@@ -39,8 +39,6 @@ border:1px solid rgba(255,255,255,0.3);
 
 <div class="glass shadow-xl rounded-3xl p-10">
 
-<!-- LOGO -->
-
 <div class="text-center mb-8">
 
 <h1 class="text-3xl font-bold text-blue-600">
@@ -54,8 +52,6 @@ Tạo tài khoản mới
 </div>
 
 <form id="registerForm" class="space-y-6">
-
-<!-- USERNAME -->
 
 <div>
 
@@ -73,8 +69,6 @@ class="mt-2 w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-500 
 
 </div>
 
-<!-- EMAIL -->
-
 <div>
 
 <label class="text-sm font-medium text-gray-600">
@@ -90,8 +84,6 @@ class="mt-2 w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-500 
 />
 
 </div>
-
-<!-- PASSWORD -->
 
 <div>
 
@@ -109,8 +101,6 @@ class="mt-2 w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-500 
 
 </div>
 
-<!-- CONFIRM PASSWORD -->
-
 <div>
 
 <label class="text-sm font-medium text-gray-600">
@@ -127,8 +117,6 @@ class="mt-2 w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-blue-500 
 
 </div>
 
-<!-- BUTTON -->
-
 <button
 type="submit"
 id="registerBtn"
@@ -141,8 +129,6 @@ Tạo tài khoản
 <div id="message" class="text-center text-sm"></div>
 
 </form>
-
-<!-- LOGIN LINK -->
 
 <div class="text-center mt-6 text-sm">
 
@@ -160,94 +146,85 @@ Tạo tài khoản
 
 <script>
 
-const form=document.getElementById("registerForm")
+const form = document.getElementById("registerForm")
 
-form.addEventListener("submit",async(e)=>{
+form.addEventListener("submit", async (e)=>{
 
 e.preventDefault()
 
-const btn=document.getElementById("registerBtn")
-const msg=document.getElementById("message")
+const btn = document.getElementById("registerBtn")
+const msg = document.getElementById("message")
 
-const username=document.getElementById("username").value
-const email=document.getElementById("email").value
-const password=document.getElementById("password").value
-const confirm=document.getElementById("confirm").value
+const username = document.getElementById("username").value.trim()
+const email = document.getElementById("email").value.trim()
+const password = document.getElementById("password").value
+const confirm = document.getElementById("confirm").value
 
 msg.innerText=""
 
 if(username.length<4){
-
 msg.innerText="Username tối thiểu 4 ký tự"
 return
-
 }
 
-if(!email.includes("@gmail.com")){
-
+if(!email.endsWith("@gmail.com")){
 msg.innerText="Email phải là gmail"
 return
-
 }
 
 if(password.length<6){
-
 msg.innerText="Mật khẩu tối thiểu 6 ký tự"
 return
-
 }
 
 if(password!==confirm){
-
 msg.innerText="Mật khẩu không khớp"
 return
-
 }
 
+btn.disabled=true
 btn.innerText="Đang tạo..."
 
 try{
 
-const res=await fetch("/api/auth/register",{
-
+const res = await fetch("/api/auth/register",{
 method:"POST",
-
 headers:{
 "Content-Type":"application/json"
 },
-
 body:JSON.stringify({
 username,
 email,
 password
 })
-
 })
 
-const data=await res.json()
+const data = await res.json()
 
-if(data.message){
+if(res.ok){
 
-msg.innerText="Đăng ký thành công! chuyển sang đăng nhập..."
+msg.style.color="green"
+msg.innerText="Đăng ký thành công"
 
 setTimeout(()=>{
-
-window.location="login.html"
-
-},2000)
+window.location.href="/login.html"
+},1500)
 
 }else{
 
+msg.style.color="red"
 msg.innerText=data.error || "Đăng ký thất bại"
 
 }
 
-}catch{
+}catch(err){
 
-msg.innerText="Server lỗi"
+msg.style.color="red"
+msg.innerText="Không kết nối được server"
 
 }
 
+btn.disabled=false
 btn.innerText="Tạo tài khoản"
 
 })
