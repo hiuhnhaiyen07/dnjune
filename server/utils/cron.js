@@ -20,3 +20,16 @@ await o.save()
 }
 
 })
+
+const Notification=require("../models/Notification")
+
+if(status.status==="completed"){
+
+await Notification.create({
+
+userId:o.userId,
+message:"Đơn "+o._id+" đã hoàn thành"
+
+})
+
+}
