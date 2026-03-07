@@ -52,3 +52,38 @@ router.post("/approve/:id", auth, admin, async (req, res) => {
 })
 
 module.exports = router
+
+const Service=require("../models/Service")
+const {getServices}=require("../utils/smmApi")
+
+/* SYNC SERVICES */
+
+router.post("/sync-services",auth,admin,async(req,res)=>{
+
+const services=await getServices()
+
+for(const s of services){
+
+let exist=await Service.findOne({serviceId:s.service})
+
+if(!exist){
+
+await Service.create({
+
+serviceId:s.service,
+name:s.name,
+category:s.category,
+rate:s.rate,
+min:s.min,
+max:s.max,
+price:s.rate*1.5
+
+})
+
+}
+
+}
+
+res.json({message:"Sync completed"})
+
+})
