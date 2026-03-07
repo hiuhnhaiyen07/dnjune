@@ -82,29 +82,17 @@ SMM PANEL
 
 <nav class="flex-1 p-4 space-y-2">
 
-<a href="dashboard.html" class="block px-4 py-3 rounded-lg bg-blue-600">
-Dashboard
-</a>
+<a href="dashboard.html" class="block px-4 py-3 rounded-lg bg-blue-600">Dashboard</a>
 
-<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
-Dịch vụ
-</a>
+<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Dịch vụ</a>
 
-<a href="add-order.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
-Tạo đơn
-</a>
+<a href="add-order.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Tạo đơn</a>
 
-<a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
-Đơn hàng
-</a>
+<a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Đơn hàng</a>
 
-<a href="deposit.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
-Nạp tiền
-</a>
+<a href="deposit.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Nạp tiền</a>
 
-<a href="support.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
-Hỗ trợ
-</a>
+<a href="support.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Hỗ trợ</a>
 
 </nav>
 
@@ -128,15 +116,11 @@ Hỗ trợ
 
 <button id="menuBtn" class="text-2xl md:hidden">☰</button>
 
-<div class="font-semibold text-lg">
-Dashboard
-</div>
+<div class="font-semibold text-lg">Dashboard</div>
 
 </div>
 
-<div class="font-medium" id="username">
-User
-</div>
+<div class="font-medium" id="username">User</div>
 
 </header>
 
@@ -147,37 +131,23 @@ User
 <div class="grid md:grid-cols-4 gap-6 mb-8">
 
 <div class="card p-6">
-
 <p class="text-gray-500 text-sm">Số dư</p>
-
-<h2 class="text-2xl font-bold text-blue-600" id="balance">
-0 VND
-</h2>
-
+<h2 class="text-2xl font-bold text-blue-600" id="balance">0 VND</h2>
 </div>
 
 <div class="card p-6">
-
 <p class="text-gray-500 text-sm">Tổng đơn</p>
-
 <h2 class="text-2xl font-bold" id="totalOrders">0</h2>
-
 </div>
 
 <div class="card p-6">
-
 <p class="text-gray-500 text-sm">Đang chạy</p>
-
 <h2 class="text-2xl font-bold text-yellow-500" id="runningOrders">0</h2>
-
 </div>
 
 <div class="card p-6">
-
 <p class="text-gray-500 text-sm">Hoàn thành</p>
-
 <h2 class="text-2xl font-bold text-green-500" id="completedOrders">0</h2>
-
 </div>
 
 </div>
@@ -215,12 +185,10 @@ User
 <thead>
 
 <tr class="border-b">
-
 <th class="py-2 text-left">ID</th>
 <th>Service</th>
 <th>Link</th>
 <th>Status</th>
-
 </tr>
 
 </thead>
@@ -255,17 +223,23 @@ const res = await fetch("/api/user/me",{
 headers:{ Authorization:"Bearer "+token }
 })
 
+if(res.status===401){
+logout()
+return
+}
+
 const user = await res.json()
 
-if(user.error) return
-
-document.getElementById("username").innerText = user.username
+document.getElementById("username").innerText =
+user.username || "User"
 
 document.getElementById("balance").innerText =
-Number(user.balance).toLocaleString()+" VND"
+Number(user.balance || 0).toLocaleString()+" VND"
 
 }catch(e){
-console.log("load user error")
+
+console.log("loadUser error",e)
+
 }
 
 }
@@ -289,7 +263,7 @@ data.forEach(s=>{
 const opt = document.createElement("option")
 
 opt.value = s.service
-opt.textContent = s.name+" - "+s.rate
+opt.textContent = s.name+" - "+Number(s.rate).toLocaleString()+" VND"
 
 select.appendChild(opt)
 
@@ -305,7 +279,7 @@ const service = document.getElementById("service").value
 const link = document.getElementById("link").value
 const quantity = document.getElementById("quantity").value
 
-await fetch("/api/orders/create",{
+const res = await fetch("/api/orders/create",{
 
 method:"POST",
 
@@ -322,7 +296,9 @@ quantity
 
 })
 
-alert("Đặt đơn thành công")
+const data = await res.json()
+
+alert(data.message || data.error)
 
 loadOrders()
 loadUser()
@@ -385,7 +361,7 @@ loadUser()
 loadServices()
 loadOrders()
 
-setInterval(loadUser,10000)
+setInterval(loadUser,5000)
 
 /* SIDEBAR */
 
