@@ -38,34 +38,30 @@ app.use("/api/services", serviceRoutes)
 app.use("/api/user", userRoutes)
 
 /* =========================
-   TEST ROUTE
-========================= */
-
-app.get("/",(req,res)=>{
-res.send("SMM Panel API running")
-})
-
-/* =========================
-   MONGODB
+   MONGODB CONNECT
 ========================= */
 
 mongoose.connect(process.env.MONGO_URI,{
+
 useNewUrlParser:true,
 useUnifiedTopology:true
+
 })
 .then(()=>{
 console.log("MongoDB connected")
 })
 .catch(err=>{
-console.log("MongoDB error:",err)
+console.log("Mongo error:",err)
 })
 
 /* =========================
-   START SERVER
+   SERVER START
 ========================= */
 
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT,()=>{
+
 console.log("Server running on port "+PORT)
+
 })
