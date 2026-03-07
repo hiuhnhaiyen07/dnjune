@@ -20,25 +20,18 @@ const app = express()
 
 connectDB()
 
-/* SECURITY RATE LIMIT */
-
 const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
-  max: 100,
-  message: { error: "Too many requests" }
+  windowMs: 60 * 1000,
+  max: 100
 })
 
 app.use(limiter)
-
-/* MIDDLEWARE */
 
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.use(express.static(path.join(__dirname, "../public")))
-
-/* ROUTES */
 
 app.use("/api/auth", authRoutes)
 app.use("/api/services", serviceRoutes)
@@ -49,38 +42,14 @@ app.use("/api/notifications", notificationRoutes)
 app.use("/api/tickets", ticketRoutes)
 app.use("/api/reseller", resellerRoutes)
 
-/* HOME PAGE */
-
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../views/login.html"))
 })
 
-/* CRON JOB */
-
 require("./utils/cron")
-
-/* SERVER START */
 
 const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
-  console.log("Server running on " + PORT)
-})  console.log(`Server running on ${PORT}`)
+  console.log(`Server running on ${PORT}`)
 })
-
-require("./utils/cron")
-
-const rateLimit = require("express-rate-limit")
-
-const limiter = rateLimit({
-
-windowMs: 1 * 60 * 1000,
-max: 100,
-
-message:{
-error:"Too many requests"
-}
-
-})
-
-app.use(limiter)
