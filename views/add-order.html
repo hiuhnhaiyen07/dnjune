@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Tạo đơn - SMM Panel</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:#f4f7fb;
+}
+
+.sidebar{
+background:#0f172a;
+}
+
+.card{
+background:white;
+border-radius:18px;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="flex h-screen">
+
+<!-- SIDEBAR -->
+
+<div class="sidebar w-64 text-white flex flex-col">
+
+<div class="p-6 text-2xl font-bold border-b border-slate-700">
+SMM PANEL
+</div>
+
+<nav class="flex-1 p-4 space-y-2">
+
+<a href="dashboard.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Dashboard
+</a>
+
+<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Dịch vụ
+</a>
+
+<a href="add-order.html" class="block px-4 py-3 rounded-lg bg-blue-600">
+Tạo đơn
+</a>
+
+<a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Đơn hàng
+</a>
+
+<a href="deposit.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">
+Nạp tiền
+</a>
+
+</nav>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="flex-1 flex flex-col">
+
+<header class="bg-white shadow-sm p-4">
+
+<h1 class="text-lg font-semibold">
+Tạo đơn hàng
+</h1>
+
+</header>
+
+<main class="p-6 overflow-y-auto">
+
+<div class="card p-8 max-w-2xl">
+
+<!-- SERVICE -->
+
+<div class="mb-6">
+
+<label class="text-sm text-gray-600">
+Chọn dịch vụ
+</label>
+
+<select id="service" class="w-full border p-3 rounded-lg mt-2">
+
+<option>
+Đang tải dịch vụ...
+</option>
+
+</select>
+
+</div>
+
+<!-- INFO -->
+
+<div class="grid grid-cols-2 gap-4 mb-6">
+
+<div class="bg-gray-50 p-3 rounded">
+
+Min: <span id="min">-</span>
+
+</div>
+
+<div class="bg-gray-50 p-3 rounded">
+
+Max: <span id="max">-</span>
+
+</div>
+
+</div>
+
+<!-- LINK -->
+
+<div class="mb-6">
+
+<label class="text-sm text-gray-600">
+Link bài viết
+</label>
+
+<input
+id="link"
+placeholder="https://..."
+class="w-full border p-3 rounded-lg mt-2"
+/>
+
+</div>
+
+<!-- QUANTITY -->
+
+<div class="mb-6">
+
+<label class="text-sm text-gray-600">
+Số lượng
+</label>
+
+<input
+type="number"
+id="quantity"
+placeholder="Nhập số lượng"
+class="w-full border p-3 rounded-lg mt-2"
+/>
+
+</div>
+
+<!-- PRICE -->
+
+<div class="bg-blue-50 p-4 rounded-lg mb-6">
+
+Tổng tiền:  
+
+<span class="font-bold text-blue-600" id="price">
+0 VND
+</span>
+
+</div>
+
+<button
+onclick="createOrder()"
+class="w-full bg-blue-600 text-white py-3 rounded-lg">
+
+Đặt đơn
+
+</button>
+
+<div id="message" class="mt-4 text-sm"></div>
+
+</div>
+
+</main>
+
+</div>
+
+</div>
+
+<script>
+
+const token=localStorage.getItem("token")
+
+if(!token){
+window.location="login.html"
+}
+
+let services=[]
+let selected=null
+
+async function loadServices(){
+
+const res=await fetch("/api/services",{
+
+headers:{
+Authorization:"Bearer "+token
+}
+
+})
+
+services=await res.json()
+
+const select=document.getElementById("service")
+
+select.innerHTML=""
+
+services.forEach(s=>{
+
+const opt=document.createElement("option")
+
+opt.value=s.service
+opt.textContent=s.name
+
+select.appendChild(opt)
+
+})
+
+select.addEventListener("change",updateInfo)
+
+updateInfo()
+
+}
+
+function updateInfo(){
+
+const id=document.getElementById("service").value
+
+selected=services.find(s=>s.service==id)
+
+document.getElementById("min").innerText=selected.min
+document.getElementById("max").innerText=selected.max
+
+}
+
+document.getElementById("quantity").addEventListener("input",()=>{
+
+const q=document.getElementById("quantity").value
+
+if(!selected) return
+
+const price=(q/1000)*selected.rate
+
+document.getElementById("price").innerText=
+Math.round(price)+" VND"
+
+})
+
+async function createOrder(){
+
+const service=document.getElementById("service").value
+const link=document.getElementById("link").value
+const quantity=document.getElementById("quantity").value
+
+const msg=document.getElementById("message")
+
+if(!link){
+msg.innerText="Nhập link"
+return
+}
+
+const res=await fetch("/api/orders/create",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json",
+Authorization:"Bearer "+token
+},
+
+body:JSON.stringify({
+service,
+link,
+quantity,
+price:1000
+})
+
+})
+
+const data=await res.json()
+
+msg.innerText=data.message || data.error
+
+}
+
+loadServices()
+
+</script>
+
+</body>
+</html>
