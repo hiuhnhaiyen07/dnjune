@@ -6,77 +6,176 @@ const admin = require("../middleware/admin")
 const User = require("../models/User")
 const Payment = require("../models/Payment")
 const Order = require("../models/Order")
+const Service = require("../models/Service")
+
+const { getServices } = require("../utils/smmApi")
 
 const router = express.Router()
 
-/* DASHBOARD */
+/* =========================
+   DASHBOARD STATS
+========================= */
 
-router.get("/stats", auth, admin, async (req, res) => {
+router.get("/stats", auth, admin, async (req,res)=>{
 
-  const users = await User.countDocuments()
+const users = await User.countDocuments()
 
-  const orders = await Order.countDocuments()
+const orders = await Order.countDocuments()
 
-  const payments = await Payment.find({ status: "approved" })
+const payments = await Payment.find({status:"approved"})
 
-  let revenue = 0
+let revenue = 0
 
-  payments.forEach(p => revenue += p.amount)
+payments.forEach(p=>{
+revenue += p.amount
+})
 
-  res.json({
-    users,
-    orders,
-    revenue
-  })
+res.json({
+users,
+orders,
+revenue
+})
 
 })
 
-/* APPROVE PAYMENT */
+/* =========================
+   APPROVE PAYMENT
+========================= */
 
-router.post("/approve/:id", auth, admin, async (req, res) => {
+router.post("/approve/:id", auth, admin, async (req,res)=>{
 
-  const payment = await Payment.findById(req.params.id)
+const payment = await Payment.findById(req.params.id)
 
-  payment.status = "approved"
+if(!payment){
+return res.json({error:"Payment không tồn tại"})
+}
 
-  await payment.save()
+payment.status="approved"
 
-  const user = await User.findById(payment.userId)
+await payment.save()
 
-  user.balance += payment.amount
+const user = await User.findById(payment.userId)
 
-  await user.save()
+user.balance += payment.amount
 
-  res.json({ message: "Đã cộng tiền" })
+await user.save()
+
+res.json({
+message:"Đã cộng tiền"
+})
 
 })
 
-module.exports = router
+/* =========================
+   LIST SERVICES
+========================= */
 
-const Service=require("../models/Service")
-const {getServices}=require("../utils/smmApi")
+router.get("/services", auth, admin, async (req,res)=>{
 
-/* SYNC SERVICES */
+const services = await Service.find()
 
-router.post("/sync-services",auth,admin,async(req,res)=>{
+res.json(services)
 
-const services=await getServices()
+})
+
+/* =========================
+   ADD SERVICE MANUAL
+========================= */
+
+router.post("/service-add", auth, admin, async (req,res)=>{
+
+const { service, name, rate, min, max } = req.body
+
+await Service.create({
+
+service,
+name,
+rate,
+min,
+max,
+enabled:true
+
+})
+
+res.json({
+message:"Service added"
+})
+
+})
+
+/* =========================
+   UPDATE SERVICE RATE
+========================= */
+
+router.post("/service-rate/:id", auth, admin, async (req,res)=>{
+
+const { rate } = req.body
+
+await Service.findByIdAndUpdate(
+req.params.id,
+{ rate }
+)
+
+res.json({
+message:"Rate updated"
+})
+
+})
+
+/* =========================
+   TOGGLE SERVICE
+========================= */
+
+router.post("/service-toggle/:id", auth, admin, async (req,res)=>{
+
+const service = await Service.findById(req.params.id)
+
+service.enabled = !service.enabled
+
+await service.save()
+
+res.json({
+message:"Status updated"
+})
+
+})
+
+/* =========================
+   DELETE SERVICE
+========================= */
+
+router.delete("/service-delete/:id", auth, admin, async (req,res)=>{
+
+await Service.findByIdAndDelete(req.params.id)
+
+res.json({
+message:"Service deleted"
+})
+
+})
+
+/* =========================
+   SYNC SERVICES FROM API
+========================= */
+
+router.post("/services/sync", auth, admin, async (req,res)=>{
+
+const services = await getServices()
 
 for(const s of services){
 
-let exist=await Service.findOne({serviceId:s.service})
+const exist = await Service.findOne({service:s.service})
 
 if(!exist){
 
 await Service.create({
 
-serviceId:s.service,
+service:s.service,
 name:s.name,
-category:s.category,
 rate:s.rate,
 min:s.min,
 max:s.max,
-price:s.rate*1.5
+enabled:true
 
 })
 
@@ -84,18 +183,10 @@ price:s.rate*1.5
 
 }
 
-res.json({message:"Sync completed"})
+res.json({
+message:"Sync completed"
+})
 
 })
 
-/* UPDATE SERVICE PRICE */
-
-router.post("/service-price/:id",auth,admin,async(req,res)=>{
-
-await Service.findByIdAndUpdate(req.params.id,{
-price:req.body.price
-})
-
-res.json({message:"Price updated"})
-
-})
+module.exports = router
