@@ -333,7 +333,23 @@ select.appendChild(opt)
 }
 
 /* CREATE ORDER */
+async function loadUser(){
 
+const res = await fetch("/api/user/me",{
+headers:{
+Authorization:"Bearer "+token
+}
+})
+
+const user = await res.json()
+
+document.getElementById("username").innerText = user.username
+
+document.getElementById("balance").innerText =
+Number(user.balance).toLocaleString()+" VND"
+
+}
+  
 async function createOrder(){
 
 const service = document.getElementById("service").value
