@@ -36,6 +36,25 @@ border-radius:6px;
 font-size:12px;
 }
 
+  #sidebar{
+transition:all .3s;
+}
+
+@media (max-width:768px){
+
+#sidebar{
+position:fixed;
+left:-260px;
+top:0;
+height:100%;
+z-index:50;
+}
+
+#sidebar.open{
+left:0;
+}
+
+}
 </style>
 
 </head>
@@ -46,7 +65,7 @@ font-size:12px;
 
 <!-- SIDEBAR -->
 
-<div class="sidebar w-64 text-white flex flex-col">
+<div id="sidebar" class="sidebar w-64 text-white flex flex-col">
 
 <div class="p-6 text-2xl font-bold border-b border-slate-700">
 SMM PANEL
@@ -82,7 +101,11 @@ Nạp tiền
 
 <div class="flex-1 flex flex-col">
 
-<header class="bg-white shadow-sm p-4">
+<header class="bg-white shadow-sm p-4 flex items-center gap-3">
+
+<button id="menuBtn" class="text-2xl md:hidden">
+☰
+</button>
 
 <h1 class="text-lg font-semibold">
 Nạp tiền tài khoản
@@ -281,7 +304,7 @@ window.location="login.html"
 
 const user=JSON.parse(localStorage.getItem("user")||"{}")
 
-const content="NAPTIEN "+(user.username||"")
+const content="JUNE "+(user.username||"")
 
 document.getElementById("transferContent").innerText=content
 
@@ -303,7 +326,7 @@ const bank="MB"
 const account="610793"
 const name="LE KIM YEN"
 
-const qr=`https://img.vietqr.io/image/${bank}-${account}-compact.png?amount=0&addInfo=${content}&accountName=${name}`
+const qr=`https://img.vietqr.io/image/${bank}-${account}-compact.png?amount=0&addInfo=${encodeURIComponent(content)}&accountName=${encodeURIComponent(name)}`
 
 document.getElementById("qrImage").src=qr
 
@@ -313,7 +336,11 @@ let time=600
 
 setInterval(()=>{
 
-if(time<=0) return
+if(time<=0){
+document.getElementById("timer").innerText="Hết hạn"
+alert("QR đã hết hạn, vui lòng reload trang")
+return
+}
 
 time--
 
@@ -399,7 +426,14 @@ table.appendChild(tr)
 }
 
 loadDeposits()
+const menuBtn=document.getElementById("menuBtn")
+const sidebar=document.getElementById("sidebar")
 
+if(menuBtn){
+menuBtn.addEventListener("click",()=>{
+sidebar.classList.toggle("open")
+})
+}
 </script>
 
 </body>
