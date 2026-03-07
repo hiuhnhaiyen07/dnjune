@@ -294,6 +294,7 @@ try{
 
 const tickets = await Ticket
 .find()
+.populate("userId","username")
 .sort({createdAt:-1})
 
 res.json(tickets)
