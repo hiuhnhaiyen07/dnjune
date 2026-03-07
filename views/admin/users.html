@@ -29,17 +29,54 @@ border-radius:18px;
 box-shadow:0 10px 25px rgba(0,0,0,0.06);
 }
 
+#sidebar{
+transition:all .3s;
+}
+
+@media (max-width:768px){
+
+#sidebar{
+position:fixed;
+left:-260px;
+top:0;
+height:100%;
+z-index:50;
+}
+
+#sidebar.open{
+left:0;
+}
+
+}
+
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.4);
+display:none;
+z-index:40;
+}
+
+#overlay.show{
+display:block;
+}
+
 </style>
 
 </head>
 
 <body>
 
+<div id="overlay"></div>
+
 <div class="flex h-screen">
 
 <!-- SIDEBAR -->
 
-<div class="sidebar w-64 text-white flex flex-col">
+<div id="sidebar" class="sidebar w-64 text-white flex flex-col">
 
 <div class="p-6 text-2xl font-bold border-b border-gray-700">
 ADMIN PANEL
@@ -59,8 +96,24 @@ Users
 Orders
 </a>
 
+<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Services
+</a>
+
 <a href="payments.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
 Deposits
+</a>
+
+<a href="profit.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Profit
+</a>
+
+<a href="logs.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Logs
+</a>
+
+<a href="settings.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
+Settings
 </a>
 
 </nav>
@@ -71,11 +124,19 @@ Deposits
 
 <div class="flex-1 flex flex-col">
 
-<header class="bg-white shadow-sm p-4 flex justify-between">
+<header class="bg-white shadow-sm p-4 flex items-center justify-between">
+
+<div class="flex items-center gap-3">
+
+<button id="menuBtn" class="text-2xl md:hidden">
+☰
+</button>
 
 <h1 class="font-semibold text-lg">
 Quản lý người dùng
 </h1>
+
+</div>
 
 <input
 id="search"
@@ -87,7 +148,7 @@ class="border px-3 py-2 rounded"
 
 <main class="p-6 overflow-y-auto">
 
-<div class="card p-6">
+<div class="card p-6 overflow-x-auto">
 
 <table class="w-full text-sm">
 
@@ -95,33 +156,17 @@ class="border px-3 py-2 rounded"
 
 <tr class="border-b text-gray-600">
 
-<th class="py-3 text-left">
-Username
-</th>
-
-<th>
-Email
-</th>
-
-<th>
-Balance
-</th>
-
-<th>
-Status
-</th>
-
-<th>
-Actions
-</th>
+<th class="py-3 text-left">Username</th>
+<th>Email</th>
+<th>Balance</th>
+<th>Status</th>
+<th>Actions</th>
 
 </tr>
 
 </thead>
 
-<tbody id="usersTable">
-
-</tbody>
+<tbody id="usersTable"></tbody>
 
 </table>
 
@@ -136,28 +181,42 @@ Actions
 <script>
 
 const token=localStorage.getItem("token")
+const user=JSON.parse(localStorage.getItem("user")||"{}")
 
 if(!token){
 window.location="../login.html"
 }
 
+if(user.role!=="admin"){
+alert("Không có quyền admin")
+window.location="../dashboard.html"
+}
+
 let users=[]
+
+function vnd(x){
+return Number(x||0).toLocaleString()+" VND"
+}
 
 /* LOAD USERS */
 
 async function loadUsers(){
 
+try{
+
 const res=await fetch("/api/admin/users",{
-
-headers:{
-Authorization:"Bearer "+token
-}
-
+headers:{Authorization:"Bearer "+token}
 })
 
 users=await res.json()
 
 renderUsers(users)
+
+}catch{
+
+console.log("API lỗi")
+
+}
 
 }
 
@@ -179,9 +238,14 @@ tr.innerHTML=`
 
 <td>${u.email}</td>
 
-<td>${u.balance} VND</td>
+<td>${vnd(u.balance)}</td>
 
-<td>${u.isBlocked ? "Blocked" : "Active"}</td>
+<td>
+${u.isBlocked
+? '<span class="text-red-500 font-semibold">Blocked</span>'
+: '<span class="text-green-600 font-semibold">Active</span>'
+}
+</td>
 
 <td class="space-x-2">
 
@@ -191,7 +255,7 @@ Edit Balance
 </button>
 
 <button onclick="toggleUser('${u._id}')"
-class="bg-red-500 text-white px-3 py-1 rounded">
+class="bg-gray-800 text-white px-3 py-1 rounded">
 ${u.isBlocked ? "Unblock" : "Block"}
 </button>
 
@@ -212,7 +276,7 @@ document.getElementById("search").addEventListener("input",(e)=>{
 const keyword=e.target.value.toLowerCase()
 
 const filtered=users.filter(u=>
-u.username.toLowerCase().includes(keyword)
+(u.username||"").toLowerCase().includes(keyword)
 )
 
 renderUsers(filtered)
@@ -236,9 +300,7 @@ headers:{
 Authorization:"Bearer "+token
 },
 
-body:JSON.stringify({
-balance:amount
-})
+body:JSON.stringify({balance:amount})
 
 })
 
@@ -251,16 +313,31 @@ loadUsers()
 async function toggleUser(id){
 
 await fetch("/api/admin/block/"+id,{
-
 method:"POST",
-
-headers:{
-Authorization:"Bearer "+token
-}
-
+headers:{Authorization:"Bearer "+token}
 })
 
 loadUsers()
+
+}
+
+/* SIDEBAR */
+
+const menuBtn=document.getElementById("menuBtn")
+const sidebar=document.getElementById("sidebar")
+const overlay=document.getElementById("overlay")
+
+if(menuBtn){
+
+menuBtn.addEventListener("click",()=>{
+sidebar.classList.toggle("open")
+overlay.classList.toggle("show")
+})
+
+overlay.addEventListener("click",()=>{
+sidebar.classList.remove("open")
+overlay.classList.remove("show")
+})
 
 }
 
