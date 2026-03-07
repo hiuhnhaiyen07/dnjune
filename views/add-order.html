@@ -211,7 +211,7 @@ class="w-full bg-blue-600 text-white py-3 rounded-lg">
 
 <script>
 
-const token=localStorage.getItem("token")
+const token = localStorage.getItem("token")
 
 if(!token){
 window.location="login.html"
@@ -220,14 +220,14 @@ window.location="login.html"
 let services=[]
 let selected=null
 
+/* LOAD SERVICES */
+
 async function loadServices(){
 
 const res=await fetch("/api/services",{
-
 headers:{
 Authorization:"Bearer "+token
 }
-
 })
 
 services=await res.json()
@@ -253,29 +253,49 @@ updateInfo()
 
 }
 
+/* UPDATE SERVICE INFO */
+
 function updateInfo(){
 
 const id=document.getElementById("service").value
 
 selected=services.find(s=>s.service==id)
 
+if(!selected) return
+
 document.getElementById("min").innerText=selected.min
 document.getElementById("max").innerText=selected.max
 
+document.getElementById("price").innerText="0 VND"
+
 }
+
+/* CALCULATE PRICE */
 
 document.getElementById("quantity").addEventListener("input",()=>{
 
 const q=document.getElementById("quantity").value
 
-if(!selected) return
+if(!selected || !q) return
+
+if(q < selected.min){
+document.getElementById("price").innerText="Chưa đủ min"
+return
+}
+
+if(q > selected.max){
+document.getElementById("price").innerText="Quá max"
+return
+}
 
 const price=(q/1000)*selected.rate
 
 document.getElementById("price").innerText=
-Math.round(price)+" VND"
+Math.round(price).toLocaleString()+" VND"
 
 })
+
+/* CREATE ORDER */
 
 async function createOrder(){
 
@@ -285,10 +305,29 @@ const quantity=document.getElementById("quantity").value
 
 const msg=document.getElementById("message")
 
+if(!selected){
+msg.innerText="Chưa chọn dịch vụ"
+return
+}
+
 if(!link){
 msg.innerText="Nhập link"
 return
 }
+
+if(quantity < selected.min){
+msg.innerText="Số lượng nhỏ hơn min"
+return
+}
+
+if(quantity > selected.max){
+msg.innerText="Số lượng lớn hơn max"
+return
+}
+
+/* tính giá thật */
+
+const price=(quantity/1000)*selected.rate
 
 const res=await fetch("/api/orders/create",{
 
@@ -303,7 +342,7 @@ body:JSON.stringify({
 service,
 link,
 quantity,
-price:1000
+price
 })
 
 })
@@ -314,19 +353,19 @@ msg.innerText=data.message || data.error
 
 }
 
-loadServices()
+/* SIDEBAR */
+
 const menuBtn=document.getElementById("menuBtn")
 const sidebar=document.getElementById("sidebar")
 
 if(menuBtn){
-
 menuBtn.addEventListener("click",()=>{
-
 sidebar.classList.toggle("open")
-
 })
-
 }
+
+loadServices()
+
 </script>
 
 </body>
