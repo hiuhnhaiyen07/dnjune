@@ -23,8 +23,8 @@ connectDB()
 /* RATE LIMIT */
 
 const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 100
+windowMs: 60 * 1000,
+max: 100
 })
 
 app.use(limiter)
@@ -33,25 +33,28 @@ app.use(limiter)
 
 app.use(cors())
 app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({extended:true}))
 
-app.use(express.static(path.join(__dirname, "../public")))
+/* STATIC */
+
+app.use(express.static(path.join(__dirname,"../public")))
+app.use(express.static(path.join(__dirname,"../views")))
 
 /* ROUTES */
 
-app.use("/api/auth", authRoutes)
-app.use("/api/services", serviceRoutes)
-app.use("/api/orders", orderRoutes)
-app.use("/api/payments", paymentRoutes)
-app.use("/api/admin", adminRoutes)
-app.use("/api/notifications", notificationRoutes)
-app.use("/api/tickets", ticketRoutes)
-app.use("/api/reseller", resellerRoutes)
+app.use("/api/auth",authRoutes)
+app.use("/api/services",serviceRoutes)
+app.use("/api/orders",orderRoutes)
+app.use("/api/payments",paymentRoutes)
+app.use("/api/admin",adminRoutes)
+app.use("/api/notifications",notificationRoutes)
+app.use("/api/tickets",ticketRoutes)
+app.use("/api/reseller",resellerRoutes)
 
-/* HOME PAGE */
+/* HOME */
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/index.html"))
+app.get("/",(req,res)=>{
+res.sendFile(path.join(__dirname,"../views/index.html"))
 })
 
 /* CRON */
@@ -62,6 +65,6 @@ require("./utils/cron")
 
 const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () => {
-  console.log("Server running on " + PORT)
+app.listen(PORT,()=>{
+console.log("Server running on "+PORT)
 })
