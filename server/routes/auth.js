@@ -6,119 +6,114 @@ const User = require("../models/User")
 
 const router = express.Router()
 
-/* REGISTER */
+/* ================= REGISTER ================= */
 
-router.post("/register", async (req,res)=>{
+router.post("/register", async (req, res) => {
+  try {
 
-try{
+    const { username, email, password } = req.body
 
-const {username,email,password} = req.body
+    if (!username || !email || !password) {
+      return res.json({ error: "Thiếu thông tin" })
+    }
 
-if(!username || !email || !password){
-return res.json({error:"Thiếu thông tin"})
-}
+    /* CHECK USERNAME */
 
-/* CHECK USERNAME */
+    const userExist = await User.findOne({ username })
+    if (userExist) {
+      return res.json({ error: "Username đã tồn tại" })
+    }
 
-const userExist = await User.findOne({username})
-if(userExist){
-return res.json({error:"Username đã tồn tại"})
-}
+    /* CHECK EMAIL */
 
-/* CHECK EMAIL */
+    const emailExist = await User.findOne({ email })
+    if (emailExist) {
+      return res.json({ error: "Email đã tồn tại" })
+    }
 
-const emailExist = await User.findOne({email})
-if(emailExist){
-return res.json({error:"Email đã tồn tại"})
-}
+    /* HASH PASSWORD */
 
-/* HASH PASSWORD */
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-const hashedPassword = await bcrypt.hash(password,10)
+    const user = new User({
+      username,
+      email,
+      password: hashedPassword
+    })
 
-const user = new User({
-username,
-email,
-password:hashedPassword
+    await user.save()
+
+    res.json({ message: "Đăng ký thành công" })
+
+  } catch (err) {
+
+    console.log(err)
+    res.status(500).json({ error: "Lỗi server" })
+
+  }
 })
 
-await user.save()
+/* ================= LOGIN ================= */
 
-res.json({message:"Đăng ký thành công"})
+router.post("/login", async (req, res) => {
+  try {
 
-}catch(err){
+    const { username, password } = req.body
 
-console.log(err)
-res.json({error:"Lỗi server"})
+    if (!username || !password) {
+      return res.json({ error: "Thiếu thông tin" })
+    }
 
-}
+    /* TÌM USER THEO USERNAME HOẶC EMAIL */
 
-})
+    const user = await User.findOne({
+      $or: [
+        { username: username },
+        { email: username }
+      ]
+    })
 
-/* LOGIN */
+    if (!user) {
+      return res.json({ error: "Tài khoản không tồn tại" })
+    }
 
-router.post("/login", async (req,res)=>{
+    /* SO SÁNH PASSWORD */
 
-try{
+    const match = await bcrypt.compare(password, user.password)
 
-const {username,password} = req.body
+    if (!match) {
+      return res.json({ error: "Sai mật khẩu" })
+    }
 
-if(!username || !password){
-return res.json({error:"Thiếu thông tin"})
-}
+    /* TẠO TOKEN */
 
-/* FIND USER BY USERNAME OR EMAIL */
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role
+      },
+      process.env.JWT_SECRET || "secret123",
+      { expiresIn: "7d" }
+    )
 
-const user = await User.findOne({
-$or:[
-{username:username},
-{email:username}
-]
-})
+    /* TRẢ VỀ USER + ROLE */
 
-if(!user){
-return res.json({error:"Tài khoản không tồn tại"})
-}
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+    })
 
-/* COMPARE PASSWORD */
+  } catch (err) {
 
-const match = await bcrypt.compare(password,user.password)
+    console.log(err)
+    res.status(500).json({ error: "Login lỗi" })
 
-if(!match){
-return res.json({error:"Sai mật khẩu"})
-}
-
-/* CREATE TOKEN */
-
-const token = jwt.sign(
-
-{
-id:user._id,
-role:user.role
-},
-
-process.env.JWT_SECRET || "secret123",
-
-{expiresIn:"7d"}
-
-)
-
-res.json({
-token,
-user:{
-username:user.username,
-email:user.email,
-role:user.role
-}
-})
-
-}catch(err){
-
-console.log(err)
-res.json({error:"Login lỗi"})
-
-}
-
+  }
 })
 
 module.exports = router
