@@ -20,7 +20,9 @@ router.post("/create", auth, antiSpam, async (req, res) => {
 
 try{
 
-const { service, link, quantity } = req.body
+let { service, link, quantity } = req.body
+
+quantity = Number(quantity)
 
 /* VALIDATE */
 
@@ -28,8 +30,12 @@ if(!service || !link || !quantity){
 return res.json({ error:"Thiếu dữ liệu" })
 }
 
-if(quantity <= 0){
+if(quantity <= 0 || isNaN(quantity)){
 return res.json({ error:"Số lượng không hợp lệ" })
+}
+
+if(!link.startsWith("http")){
+return res.json({ error:"Link không hợp lệ" })
 }
 
 /* FIND SERVICE */
@@ -50,7 +56,7 @@ error:`Số lượng phải từ ${s.min} - ${s.max}`
 
 /* CALCULATE PRICE */
 
-const price = (quantity / 1000) * s.rate
+const price = Math.ceil((quantity / 1000) * s.rate)
 
 /* FIND USER */
 
@@ -72,7 +78,7 @@ let api
 
 try{
 
-api = await createOrder(service, link, quantity)
+api = await createOrder(s.provider, link, quantity)
 
 }catch(e){
 
@@ -90,7 +96,7 @@ const order = new Order({
 
 userId: user._id,
 
-service,
+service: s.service,
 link,
 quantity,
 
