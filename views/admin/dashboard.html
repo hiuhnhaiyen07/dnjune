@@ -8,9 +8,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Toastify cho thông báo đẹp -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
   <style>
     body {
       font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #f1f5f9, #e2e8f0);
+      transition: background 0.3s ease;
     }
     .sidebar {
       background: linear-gradient(to bottom, #0f172a, #1e293b);
@@ -40,6 +46,7 @@
       width: 50px;
       height: 50px;
       animation: spin 1s linear infinite;
+      margin: 0 auto;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -54,6 +61,10 @@
       opacity: 1;
       transform: translateY(0);
     }
+    .btn-loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 
@@ -64,7 +75,7 @@
 
 <div class="flex h-screen overflow-hidden">
 
-  <!-- SIDEBAR - ĐẦY ĐỦ 13 MỤC -->
+  <!-- SIDEBAR -->
   <div id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform -translate-x-full transition-transform duration-400 ease-in-out z-50 md:static md:translate-x-0 shadow-2xl md:shadow-none">
     <div class="p-6 text-2xl font-bold border-b border-slate-700 flex items-center gap-4">
       <svg class="w-10 h-10 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,17 +130,17 @@
         Profit
       </a>
 
-      <a href="logs.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-colors">
+      <a href="logs.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
         <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         Logs
       </a>
 
-      <a href="settings.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-colors">
+      <a href="settings.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
         <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37zM15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
         Settings
       </a>
 
-      <a href="admins.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-colors">
+      <a href="admins.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
         <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM6 5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
         Admins
       </a>
@@ -182,25 +193,25 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
         <div class="card p-8 text-center number-animate">
           <svg class="w-12 h-12 mx-auto mb-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Tổng Người dùng</p>
           <h2 id="users" class="text-4xl font-extrabold text-blue-600 dark:text-blue-400 mt-2">0</h2>
         </div>
 
         <div class="card p-8 text-center number-animate">
           <svg class="w-12 h-12 mx-auto mb-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Total Orders</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Tổng Đơn hàng</p>
           <h2 id="orders" class="text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-2">0</h2>
         </div>
 
         <div class="card p-8 text-center number-animate">
           <svg class="w-12 h-12 mx-auto mb-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Total Revenue</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Tổng Doanh thu</p>
           <h2 id="revenue" class="text-4xl font-extrabold text-green-600 dark:text-green-400 mt-2">0 VND</h2>
         </div>
 
         <div class="card p-8 text-center number-animate">
           <svg class="w-12 h-12 mx-auto mb-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Running Orders</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Đơn đang chạy</p>
           <h2 id="runningOrders" class="text-4xl font-extrabold text-yellow-600 dark:text-yellow-400 mt-2">0</h2>
         </div>
       </div>
@@ -222,11 +233,11 @@
               <span class="font-semibold">Node.js + Express + MongoDB</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Status</span>
+              <span class="text-gray-600 dark:text-gray-400">Trạng thái</span>
               <span class="text-green-600 font-bold">Online</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-gray-600 dark:text-gray-400">Last Update</span>
+              <span class="text-gray-600 dark:text-gray-400">Cập nhật lần cuối</span>
               <span id="lastUpdate" class="font-semibold">Đang tải...</span>
             </div>
           </div>
@@ -252,114 +263,126 @@
       </div>
     </main>
   </div>
-</div>
 
-<script>
-  // Dark mode toggle & persist
-  const htmlRoot = document.getElementById("htmlRoot");
-  const darkToggle = document.getElementById("darkModeToggle");
-  const sunIcon = document.getElementById("sunIcon");
-  const moonIcon = document.getElementById("moonIcon");
+  <script>
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  function toggleDarkMode() {
-    htmlRoot.classList.toggle("dark");
-    localStorage.setItem("darkMode", htmlRoot.classList.contains("dark"));
-    updateIcons();
-  }
-
-  function updateIcons() {
-    if (htmlRoot.classList.contains("dark")) {
-      moonIcon.classList.remove("hidden");
-      sunIcon.classList.add("hidden");
-    } else {
-      sunIcon.classList.remove("hidden");
-      moonIcon.classList.add("hidden");
-    }
-  }
-
-  if (localStorage.getItem("darkMode") === "true" || (!localStorage.getItem("darkMode") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-    htmlRoot.classList.add("dark");
-  }
-  updateIcons();
-
-  if (darkToggle) darkToggle.addEventListener("click", toggleDarkMode);
-
-  // Sidebar toggle
-  const menuBtn = document.getElementById("menuBtn");
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("overlay");
-
-  function toggleSidebar() {
-    sidebar.classList.toggle("-translate-x-full");
-    overlay.classList.toggle("hidden");
-  }
-
-  menuBtn.addEventListener("click", toggleSidebar);
-  overlay.addEventListener("click", toggleSidebar);
-
-  document.querySelectorAll('#sidebar a').forEach(link => {
-    link.addEventListener("click", () => {
-      if (window.innerWidth < 768) toggleSidebar();
-    });
-  });
-
-  // Load stats with number animation
-  async function loadStats() {
-    document.getElementById("loading").classList.remove("hidden");
-
-    try {
-      const res = await fetch("/api/admin/stats", {
-        headers: { Authorization: "Bearer " + localStorage.getItem("token") }
-      });
-
-      if (res.status === 401) {
-        logout();
-        return;
-      }
-
-      if (!res.ok) throw new Error("API error");
-
-      const data = await res.json();
-
-      const animateNumber = (el, target) => {
-        let start = 0;
-        const duration = 1500;
-        const step = target / (duration / 16);
-        const timer = setInterval(() => {
-          start += step;
-          if (start >= target) {
-            start = target;
-            clearInterval(timer);
-          }
-          el.innerText = Math.round(start).toLocaleString();
-        }, 16);
-        el.classList.add("visible");
-      };
-
-      animateNumber(document.getElementById("users"), data.users || 0);
-      animateNumber(document.getElementById("orders"), data.orders || 0);
-      animateNumber(document.getElementById("revenue"), Number(data.revenue || 0));
-      animateNumber(document.getElementById("runningOrders"), data.runningOrders || 0);
-
-      document.getElementById("lastUpdate").innerText = new Date().toLocaleString("vi-VN");
-    } catch (e) {
-      console.error("Load stats error:", e);
-    } finally {
-      document.getElementById("loading").classList.add("hidden");
-    }
-  }
-
-  function logout() {
-    if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi Admin Panel?")) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    if (!token) {
       window.location = "../login.html";
     }
-  }
 
-  loadStats();
-  setInterval(loadStats, 30000);
-</script>
+    if (user.role !== "admin") {
+      alert("Bạn không có quyền truy cập khu vực Admin!");
+      window.location = "../dashboard.html";
+    }
 
-</body>
-</html>
+    // Dark mode toggle & persist
+    const htmlRoot = document.getElementById("htmlRoot");
+    const darkToggle = document.getElementById("darkModeToggle");
+    const sunIcon = document.getElementById("sunIcon");
+    const moonIcon = document.getElementById("moonIcon");
+
+    function toggleDarkMode() {
+      htmlRoot.classList.toggle("dark");
+      localStorage.setItem("darkMode", htmlRoot.classList.contains("dark"));
+      updateIcons();
+    }
+
+    function updateIcons() {
+      if (htmlRoot.classList.contains("dark")) {
+        moonIcon.classList.remove("hidden");
+        sunIcon.classList.add("hidden");
+      } else {
+        sunIcon.classList.remove("hidden");
+        moonIcon.classList.add("hidden");
+      }
+    }
+
+    if (localStorage.getItem("darkMode") === "true" || (!localStorage.getItem("darkMode") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      htmlRoot.classList.add("dark");
+    }
+    updateIcons();
+
+    if (darkToggle) darkToggle.addEventListener("click", toggleDarkMode);
+
+    // Sidebar toggle
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    function toggleSidebar() {
+      sidebar.classList.toggle("-translate-x-full");
+      overlay.classList.toggle("hidden");
+    }
+
+    menuBtn.addEventListener("click", toggleSidebar);
+    overlay.addEventListener("click", toggleSidebar);
+
+    document.querySelectorAll('#sidebar a').forEach(link => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth < 768) toggleSidebar();
+      });
+    });
+
+    // Toastify thông báo đẹp
+    function showToast(message, type = "success") {
+      Toastify({
+        text: message,
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "right",
+        backgroundColor: type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6",
+        stopOnFocus: true,
+        style: {
+          borderRadius: "12px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+          fontFamily: "'Inter', sans-serif",
+          padding: "16px 24px",
+          fontSize: "16px"
+        }
+      }).showToast();
+    }
+
+    // Load stats with animation
+    async function loadStats() {
+      document.getElementById("loading").classList.remove("hidden");
+
+      try {
+        const res = await fetch("/api/admin/stats", {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        if (res.status === 401) {
+          logout();
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("API error " + res.status);
+        }
+
+        const data = await res.json();
+
+        const animateNumber = (el, target, suffix = "") => {
+          let start = 0;
+          const duration = 1500;
+          const step = target / (duration / 16);
+          const timer = setInterval(() => {
+            start += step;
+            if (start >= target) {
+              start = target;
+              clearInterval(timer);
+            }
+            el.innerText = Math.round(start).toLocaleString("vi-VN") + suffix;
+          }, 16);
+          el.classList.add("visible");
+        };
+
+        animateNumber(document.getElementById("users"), data.users || 0);
+        animateNumber(document.getElementById("orders"), data.orders || 0);
+        animateNumber(document.getElementById("revenue"), Number(data.revenue || 0), " VND");
+        animateNumber(document.getElementById("runningOrders"), data.runningOrders || 0);
+
+        
