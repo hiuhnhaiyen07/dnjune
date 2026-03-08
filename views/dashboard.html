@@ -299,9 +299,132 @@ quantity
 const data = await res.json()
 
 alert(data.message || data.error)
+<script>
+
+const token = localStorage.getItem("token")
+
+if(!token){
+window.location="login.html"
+}
+
+/* LOAD USER */
+
+async function loadUser(){
+
+try{
+
+const res = await fetch("/api/user/me",{
+headers:{ Authorization:"Bearer "+token }
+})
+
+if(!res.ok){
+if(res.status===401) logout()
+return
+}
+
+const user = await res.json()
+
+if(!user) return
+
+document.getElementById("username").innerText =
+user.username || "User"
+
+const balance = Number(user.balance) || 0
+
+document.getElementById("balance").innerText =
+balance.toLocaleString()+" VND"
+
+}catch(e){
+
+console.log("loadUser error",e)
+
+}
+
+}
+
+/* LOAD SERVICES */
+
+async function loadServices(){
+
+try{
+
+const res = await fetch("/api/services",{
+headers:{ Authorization:"Bearer "+token }
+})
+
+if(!res.ok) return
+
+const data = await res.json()
+
+const select = document.getElementById("service")
+
+select.innerHTML=""
+
+data.forEach(s=>{
+
+const opt = document.createElement("option")
+
+opt.value = s.service
+opt.textContent =
+s.name+" - "+Number(s.rate).toLocaleString()+" VND"
+
+select.appendChild(opt)
+
+})
+
+}catch(e){
+console.log("services error",e)
+}
+
+}
+
+/* CREATE ORDER */
+
+async function createOrder(){
+
+const service = document.getElementById("service").value
+const link = document.getElementById("link").value
+const quantity = document.getElementById("quantity").value
+
+if(!link || !quantity){
+alert("Nhập link và số lượng")
+return
+}
+
+try{
+
+const res = await fetch("/api/orders/create",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json",
+Authorization:"Bearer "+token
+},
+
+body:JSON.stringify({
+service,
+link,
+quantity
+})
+
+})
+
+const data = await res.json()
+
+alert(data.message || data.error || "Tạo đơn thành công")
+
+document.getElementById("link").value=""
+document.getElementById("quantity").value=""
 
 loadOrders()
 loadUser()
+
+}catch(e){
+
+console.log("create order error",e)
+
+}
 
 }
 
@@ -309,9 +432,13 @@ loadUser()
 
 async function loadOrders(){
 
+try{
+
 const res = await fetch("/api/orders/my",{
 headers:{ Authorization:"Bearer "+token }
 })
+
+if(!res.ok) return
 
 const data = await res.json()
 
@@ -327,13 +454,19 @@ data.slice(0,5).forEach(o=>{
 if(o.status==="processing") running++
 if(o.status==="completed") completed++
 
+let statusColor="text-gray-500"
+
+if(o.status==="processing") statusColor="text-yellow-500"
+if(o.status==="completed") statusColor="text-green-500"
+if(o.status==="cancelled") statusColor="text-red-500"
+
 const tr=document.createElement("tr")
 
 tr.innerHTML=`
-<td>${o._id}</td>
+<td class="py-2">${o._id}</td>
 <td>${o.service}</td>
-<td>${o.link}</td>
-<td>${o.status}</td>
+<td class="truncate max-w-[200px]">${o.link}</td>
+<td class="${statusColor} font-medium">${o.status}</td>
 `
 
 table.appendChild(tr)
@@ -343,6 +476,12 @@ table.appendChild(tr)
 document.getElementById("totalOrders").innerText=data.length
 document.getElementById("runningOrders").innerText=running
 document.getElementById("completedOrders").innerText=completed
+
+}catch(e){
+
+console.log("orders error",e)
+
+}
 
 }
 
@@ -357,11 +496,23 @@ window.location="login.html"
 
 /* INIT */
 
-loadUser()
-loadServices()
-loadOrders()
+async function init(){
 
-setInterval(loadUser,5000)
+await loadUser()
+await loadServices()
+await loadOrders()
+
+}
+
+/* AUTO REFRESH */
+
+setInterval(()=>{
+loadUser()
+},2000)
+
+setInterval(()=>{
+loadOrders()
+},8000)
 
 /* SIDEBAR */
 
@@ -378,6 +529,8 @@ overlay.addEventListener("click",()=>{
 sidebar.classList.remove("open")
 overlay.classList.remove("show")
 })
+
+init()
 
 </script>
 
