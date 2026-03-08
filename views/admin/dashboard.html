@@ -15,36 +15,40 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(to bottom right, #f1f5f9, #e2e8f0);
-      transition: background 0.3s ease;
+      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+      transition: background 0.4s ease;
+    }
+    .dark body {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
     }
     .sidebar {
       background: linear-gradient(to bottom, #0f172a, #1e293b);
     }
     .card {
       background: white;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
-      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transition: all 0.4s ease;
+      overflow: hidden;
     }
     .card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
     }
     .dark .card {
       background: #1f2937;
-      color: white;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
     }
     #overlay {
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(8px);
       transition: opacity 0.4s ease;
     }
     .loader {
-      border: 5px solid #e5e7eb;
-      border-top: 5px solid #3b82f6;
+      border: 6px solid #e5e7eb;
+      border-top: 6px solid #3b82f6;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       animation: spin 1s linear infinite;
       margin: 0 auto;
     }
@@ -54,8 +58,8 @@
     }
     .number-animate {
       opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.8s ease-out;
+      transform: translateY(12px);
+      transition: all 1s ease-out;
     }
     .number-animate.visible {
       opacity: 1;
@@ -68,10 +72,10 @@
   </style>
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
+<body class="min-h-screen transition-colors duration-300">
 
 <!-- OVERLAY -->
-<div id="overlay" class="fixed inset-0 bg-black/60 z-40 hidden transition-opacity duration-400"></div>
+<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-400"></div>
 
 <div class="flex h-screen overflow-hidden">
 
@@ -112,17 +116,7 @@
 
       <a href="payments.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
         <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2m8 0v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9m8 0H7" /></svg>
-        Payments
-      </a>
-
-      <a href="transactions.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
-        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        Transactions
-      </a>
-
-      <a href="tickets.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
-        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-        Tickets
+        Deposits
       </a>
 
       <a href="profit.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
@@ -176,7 +170,7 @@
         </button>
 
         <!-- Refresh -->
-        <button onclick="loadStats()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+        <button id="refreshBtn" onclick="loadStats()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
           Refresh
         </button>
@@ -192,27 +186,27 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
         <div class="card p-8 text-center number-animate">
-          <svg class="w-12 h-12 mx-auto mb-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg class="w-14 h-14 mx-auto mb-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
           <p class="text-sm text-gray-500 dark:text-gray-400">Tổng Người dùng</p>
-          <h2 id="users" class="text-4xl font-extrabold text-blue-600 dark:text-blue-400 mt-2">0</h2>
+          <h2 id="users" class="text-5xl font-extrabold text-blue-600 dark:text-blue-400 mt-2">0</h2>
         </div>
 
         <div class="card p-8 text-center number-animate">
-          <svg class="w-12 h-12 mx-auto mb-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <svg class="w-14 h-14 mx-auto mb-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           <p class="text-sm text-gray-500 dark:text-gray-400">Tổng Đơn hàng</p>
-          <h2 id="orders" class="text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-2">0</h2>
+          <h2 id="orders" class="text-5xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-2">0</h2>
         </div>
 
         <div class="card p-8 text-center number-animate">
-          <svg class="w-12 h-12 mx-auto mb-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <svg class="w-14 h-14 mx-auto mb-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           <p class="text-sm text-gray-500 dark:text-gray-400">Tổng Doanh thu</p>
-          <h2 id="revenue" class="text-4xl font-extrabold text-green-600 dark:text-green-400 mt-2">0 VND</h2>
+          <h2 id="revenue" class="text-5xl font-extrabold text-green-600 dark:text-green-400 mt-2">0 VND</h2>
         </div>
 
         <div class="card p-8 text-center number-animate">
-          <svg class="w-12 h-12 mx-auto mb-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <svg class="w-14 h-14 mx-auto mb-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           <p class="text-sm text-gray-500 dark:text-gray-400">Đơn đang chạy</p>
-          <h2 id="runningOrders" class="text-4xl font-extrabold text-yellow-600 dark:text-yellow-400 mt-2">0</h2>
+          <h2 id="runningOrders" class="text-5xl font-extrabold text-yellow-600 dark:text-yellow-400 mt-2">0</h2>
         </div>
       </div>
 
@@ -246,16 +240,16 @@
         <div class="card p-8">
           <h2 class="text-2xl font-bold mb-6">Hành động nhanh</h2>
           <div class="grid grid-cols-2 gap-5">
-            <button onclick="window.location='users.html'" class="bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 p-6 rounded-xl text-center font-medium transition">
+            <button onclick="window.location='users.html'" class="bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 p-6 rounded-xl text-center font-medium transition transform hover:scale-105">
               Quản lý Users
             </button>
-            <button onclick="window.location='orders.html'" class="bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 p-6 rounded-xl text-center font-medium transition">
+            <button onclick="window.location='orders.html'" class="bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 p-6 rounded-xl text-center font-medium transition transform hover:scale-105">
               Xem Orders
             </button>
-            <button onclick="window.location='payments.html'" class="bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-800/50 p-6 rounded-xl text-center font-medium transition">
+            <button onclick="window.location='payments.html'" class="bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-800/50 p-6 rounded-xl text-center font-medium transition transform hover:scale-105">
               Duyệt Nạp tiền
             </button>
-            <button onclick="window.location='tickets.html'" class="bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-800/50 p-6 rounded-xl text-center font-medium transition">
+            <button onclick="window.location='tickets.html'" class="bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-800/50 p-6 rounded-xl text-center font-medium transition transform hover:scale-105">
               Hỗ trợ Tickets
             </button>
           </div>
@@ -355,110 +349,23 @@
         });
 
         if (res.status === 401) {
-script>
-    const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-    if (!token) {
-      window.location = "../login.html";
-    }
-
-    if (user.role !== "admin") {
-      alert("Bạn không có quyền truy cập khu vực Admin!");
-      window.location = "../dashboard.html";
-    }
-
-    // Dark mode toggle & persist
-    const htmlRoot = document.getElementById("htmlRoot");
-    const darkToggle = document.getElementById("darkModeToggle");
-    const sunIcon = document.getElementById("sunIcon");
-    const moonIcon = document.getElementById("moonIcon");
-
-    function toggleDarkMode() {
-      htmlRoot.classList.toggle("dark");
-      localStorage.setItem("darkMode", htmlRoot.classList.contains("dark"));
-      updateIcons();
-    }
-
-    function updateIcons() {
-      if (htmlRoot.classList.contains("dark")) {
-        moonIcon.classList.remove("hidden");
-        sunIcon.classList.add("hidden");
-      } else {
-        sunIcon.classList.remove("hidden");
-        moonIcon.classList.add("hidden");
-      }
-    }
-
-    if (localStorage.getItem("darkMode") === "true" || (!localStorage.getItem("darkMode") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      htmlRoot.classList.add("dark");
-    }
-    updateIcons();
-
-    if (darkToggle) darkToggle.addEventListener("click", toggleDarkMode);
-
-    // Sidebar toggle
-    const menuBtn = document.getElementById("menuBtn");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-
-    function toggleSidebar() {
-      sidebar.classList.toggle("-translate-x-full");
-      overlay.classList.toggle("hidden");
-    }
-
-    menuBtn.addEventListener("click", toggleSidebar);
-    overlay.addEventListener("click", toggleSidebar);
-
-    document.querySelectorAll('#sidebar a').forEach(link => {
-      link.addEventListener("click", () => {
-        if (window.innerWidth < 768) toggleSidebar();
-      });
-    });
-
-    // Toastify thông báo đẹp
-    function showToast(message, type = "success") {
-      Toastify({
-        text: message,
-        duration: 3000,
-        close: true,
-        gravity: "top",
-        position: "right",
-        backgroundColor: type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6",
-        stopOnFocus: true,
-        style: {
-          borderRadius: "12px",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-          fontFamily: "'Inter', sans-serif",
-          padding: "16px 24px",
-          fontSize: "16px"
-        }
-      }).showToast();
-    }
-
-    // Load stats with animation
-    async function loadStats() {
-      document.getElementById("loading").classList.remove("hidden");
-
-      try {
-        const res = await fetch("/api/admin/stats", {
-          headers: { Authorization: "Bearer " + token }
-        });
-
-        if (res.status === 401) {
           logout();
           return;
         }
 
         if (!res.ok) {
-          throw new Error("API error " + res.status);
+          const errorText = await res.text();
+          console.error("API /admin/stats lỗi:", res.status, errorText);
+          showToast("Không tải được dữ liệu thống kê. Lỗi: " + errorText, "error");
+          return;
         }
 
         const data = await res.json();
+        console.log("Dữ liệu stats:", data);
 
         const animateNumber = (el, target, suffix = "") => {
           let start = 0;
-          const duration = 1500;
+          const duration = 1800;
           const step = target / (duration / 16);
           const timer = setInterval(() => {
             start += step;
@@ -481,7 +388,7 @@ script>
         showToast("Dữ liệu dashboard đã cập nhật!", "success");
       } catch (e) {
         console.error("Load stats error:", e);
-        showToast("Không tải được dữ liệu dashboard. Lỗi: " + e.message, "error");
+        showToast("Lỗi tải dữ liệu dashboard: " + e.message, "error");
       } finally {
         document.getElementById("loading").classList.add("hidden");
       }
@@ -500,4 +407,4 @@ script>
     setInterval(loadStats, 30000); // Auto refresh mỗi 30 giây
   </script>
 </body>
-</html> 
+</html>
