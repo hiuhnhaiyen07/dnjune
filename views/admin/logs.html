@@ -1,73 +1,355 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth" id="htmlRoot">
+
 <head>
-<meta charset="UTF-8">
-<title>System Logs</title>
-<script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Logs - Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #f1f5f9, #e2e8f0);
+      transition: background 0.3s ease;
+    }
+    .sidebar {
+      background: linear-gradient(to bottom, #0f172a, #1e293b);
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s ease;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+    }
+    .dark .card {
+      background: #1f2937;
+      color: white;
+    }
+    #overlay {
+      backdrop-filter: blur(6px);
+      transition: opacity 0.4s ease;
+    }
+    .loader {
+      border: 5px solid #e5e7eb;
+      border-top: 5px solid #3b82f6;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+    .dark tr:hover {
+      background-color: #374151;
+    }
+  </style>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
 
-<div class="max-w-6xl mx-auto p-6">
+<!-- OVERLAY -->
+<div id="overlay" class="fixed inset-0 bg-black/60 z-40 hidden transition-opacity duration-400"></div>
 
-<h1 class="text-2xl font-bold mb-6">
-System Logs
-</h1>
+<div class="flex h-screen overflow-hidden">
 
-<div class="bg-white p-6 rounded-xl shadow">
+  <!-- SIDEBAR - ĐẦY ĐỦ 13 MỤC -->
+  <div id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform -translate-x-full transition-transform duration-400 ease-in-out z-50 md:static md:translate-x-0 shadow-2xl md:shadow-none">
+    <div class="p-6 text-2xl font-bold border-b border-slate-700 flex items-center gap-4">
+      <svg class="w-10 h-10 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+      ADMIN PANEL
+    </div>
 
-<table class="w-full text-sm">
+    <nav class="p-5 space-y-2 overflow-y-auto h-[calc(100vh-80px)]">
+      <a href="dashboard.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+        Dashboard
+      </a>
 
-<thead>
-<tr class="border-b">
-<th class="text-left py-2">Time</th>
-<th class="text-left">User</th>
-<th class="text-left">Action</th>
-</tr>
-</thead>
+      <a href="users.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        Users
+      </a>
 
-<tbody id="logsTable"></tbody>
+      <a href="balance.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a5 5 0 00-10 0v2m-3 7a3 3 0 003 3h10a3 3 0 003-3v-4a3 3 0 00-3-3H7a3 3 0 00-3 3v4z" /></svg>
+        Balance
+      </a>
 
-</table>
+      <a href="orders.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+        Orders
+      </a>
 
-</div>
+      <a href="services.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+        Services
+      </a>
 
+      <a href="payments.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2m8 0v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9m8 0H7" /></svg>
+        Payments
+      </a>
+
+      <a href="transactions.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        Transactions
+      </a>
+
+      <a href="tickets.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+        Tickets
+      </a>
+
+      <a href="profit.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+        Profit
+      </a>
+
+      <a href="logs.html" class="flex items-center px-5 py-4 rounded-xl bg-blue-600/90 text-white font-medium hover:bg-blue-700 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        Logs
+      </a>
+
+      <a href="settings.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37zM15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        Settings
+      </a>
+
+      <a href="admins.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM6 5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+        Admins
+      </a>
+
+      <div class="pt-8 mt-8 border-t border-slate-700">
+        <button onclick="logout()" class="flex items-center w-full px-5 py-4 rounded-xl text-red-400 hover:bg-red-900/30 transition-colors font-medium">
+          <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Đăng xuất
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex items-center justify-between transition-colors duration-300">
+      <div class="flex items-center gap-5">
+        <button id="menuBtn" class="text-3xl text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
+          ☰
+        </button>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">System Logs</h1>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <!-- Dark mode toggle -->
+        <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+          <svg id="sunIcon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a3 3 0 11-8 0 3 3 0 018 0z" /></svg>
+          <svg id="moonIcon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+
+        <!-- Refresh -->
+        <button onclick="loadLogs()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <main class="p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900 flex-1 transition-colors duration-300">
+      <div class="max-w-6xl mx-auto">
+
+        <!-- TITLE + FILTER -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">System Logs</h1>
+
+          <div class="flex flex-wrap gap-4">
+            <input id="filterUser" placeholder="Tìm theo username" class="border border-gray-300 dark:border-gray-600 px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white transition w-full md:w-48">
+            <input id="filterAction" placeholder="Tìm theo action" class="border border-gray-300 dark:border-gray-600 px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white transition w-full md:w-48">
+            <button onclick="loadLogs()" class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              Tìm kiếm
+            </button>
+          </div>
+        </div>
+
+        <!-- LOADING -->
+        <div id="loading" class="text-center py-20 hidden">
+          <div class="loader mx-auto"></div>
+          <p class="mt-6 text-lg text-gray-500 dark:text-gray-400">Đang tải logs hệ thống...</p>
+        </div>
+
+        <!-- TABLE LOGS -->
+        <div class="card p-8 overflow-x-auto">
+          <table class="w-full min-w-max">
+            <thead>
+              <tr class="border-b border-gray-200 dark:border-gray-700">
+                <th class="py-4 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Thời gian</th>
+                <th class="py-4 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">User</th>
+                <th class="py-4 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Action</th>
+                <th class="py-4 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Chi tiết</th>
+                <th class="py-4 px-6 text-center font-semibold text-gray-700 dark:text-gray-300">IP</th>
+              </tr>
+            </thead>
+            <tbody id="logsTable" class="divide-y divide-gray-200 dark:divide-gray-700">
+              <!-- Dữ liệu sẽ render ở đây -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
 </div>
 
 <script>
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-const token = localStorage.getItem("token")
+  if (!token) {
+    window.location = "../login.html";
+  }
 
-async function loadLogs(){
+  if (user.role !== "admin") {
+    alert("Bạn không có quyền truy cập khu vực Admin!");
+    window.location = "../dashboard.html";
+  }
 
-const res = await fetch("/api/admin/logs",{
-headers:{ Authorization:"Bearer "+token }
-})
+  // Dark mode toggle & persist
+  const htmlRoot = document.getElementById("htmlRoot");
+  const darkToggle = document.getElementById("darkModeToggle");
+  const sunIcon = document.getElementById("sunIcon");
+  const moonIcon = document.getElementById("moonIcon");
 
-const data = await res.json()
+  function toggleDarkMode() {
+    htmlRoot.classList.toggle("dark");
+    localStorage.setItem("darkMode", htmlRoot.classList.contains("dark"));
+    updateIcons();
+  }
 
-const table = document.getElementById("logsTable")
+  function updateIcons() {
+    if (htmlRoot.classList.contains("dark")) {
+      moonIcon.classList.remove("hidden");
+      sunIcon.classList.add("hidden");
+    } else {
+      sunIcon.classList.remove("hidden");
+      moonIcon.classList.add("hidden");
+    }
+  }
 
-table.innerHTML=""
+  if (localStorage.getItem("darkMode") === "true" || (!localStorage.getItem("darkMode") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+    htmlRoot.classList.add("dark");
+  }
+  updateIcons();
 
-data.forEach(log=>{
+  if (darkToggle) darkToggle.addEventListener("click", toggleDarkMode);
 
-const tr=document.createElement("tr")
+  // Sidebar toggle
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
 
-tr.innerHTML=`
-<td class="py-2">${log.time}</td>
-<td>${log.user}</td>
-<td>${log.action}</td>
-`
+  function toggleSidebar() {
+    sidebar.classList.toggle("-translate-x-full");
+    overlay.classList.toggle("hidden");
+  }
 
-table.appendChild(tr)
+  menuBtn.addEventListener("click", toggleSidebar);
+  overlay.addEventListener("click", toggleSidebar);
 
-})
+  document.querySelectorAll('#sidebar a').forEach(link => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth < 768) toggleSidebar();
+    });
+  });
 
-}
+  // Load Logs
+  async function loadLogs() {
+    document.getElementById("loading").classList.remove("hidden");
 
-loadLogs()
+    try {
+      const res = await fetch("/api/admin/logs", {
+        headers: { Authorization: "Bearer " + token }
+      });
 
+      if (res.status === 401) {
+        logout();
+        return;
+      }
+
+      if (!res.ok) {
+        console.error("Lỗi tải logs:", res.status, await res.text());
+        return;
+      }
+
+      let logs = await res.json();
+
+      // Filter
+      const filterUser = document.getElementById("filterUser").value.trim().toLowerCase();
+      const filterAction = document.getElementById("filterAction").value.trim().toLowerCase();
+
+      if (filterUser) {
+        logs = logs.filter(log => (log.user || "").toLowerCase().includes(filterUser));
+      }
+      if (filterAction) {
+        logs = logs.filter(log => (log.action || "").toLowerCase().includes(filterAction));
+      }
+
+      const table = document.getElementById("logsTable");
+      table.innerHTML = "";
+
+      logs.forEach(log => {
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer";
+        tr.onclick = () => alert(`Chi tiết log:\n\nUser: ${log.user || 'N/A'}\nAction: ${log.action}\nTime: ${log.time}\nIP: ${log.ip || 'N/A'}\nChi tiết: ${log.details || 'Không có'}`);
+
+        tr.innerHTML = `
+          <td class="py-4 px-6">${log.time || new Date().toLocaleString('vi-VN')}</td>
+          <td class="py-4 px-6 font-medium">${log.user || 'System'}</td>
+          <td class="py-4 px-6">
+            <span class="px-3 py-1 rounded-full text-xs font-semibold ${log.action?.includes('login') || log.action?.includes('success') ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}">
+              ${log.action || 'Unknown'}
+            </span>
+          </td>
+          <td class="py-4 px-6 text-gray-600 dark:text-gray-300 truncate max-w-xs">${log.details || log.action || '-'}</td>
+          <td class="py-4 px-6 text-center text-gray-500 dark:text-gray-400">${log.ip || 'N/A'}</td>
+        `;
+        table.appendChild(tr);
+      });
+    } catch (e) {
+      console.error("loadLogs error:", e);
+    } finally {
+      document.getElementById("loading").classList.add("hidden");
+    }
+  }
+
+  function logout() {
+    if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi Admin Panel?")) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location = "../login.html";
+    }
+  }
+
+  // Khởi động + filter realtime
+  loadLogs();
+
+  document.getElementById("filterUser").addEventListener("input", loadLogs);
+  document.getElementById("filterAction").addEventListener("input", loadLogs);
 </script>
 
 </body>
