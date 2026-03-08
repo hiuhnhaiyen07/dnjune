@@ -220,10 +220,11 @@
       }
     });
 
-    /* CREATE ORDER */
+    /* SUBMIT ORDER - ĐÃ SỬA ENDPOINT THÀNH /api/orders/create (khớp backend) */
     async function submitOrder() {
       const msg = document.getElementById("message");
       msg.innerText = "";
+      msg.classList.remove("text-green-600", "text-red-600");
 
       const serviceValue = document.getElementById("service").value;
       const link = document.getElementById("link").value.trim();
@@ -233,34 +234,39 @@
 
       if (!selectedService) {
         msg.innerText = "Vui lòng chọn dịch vụ";
+        msg.classList.add("text-red-600");
         return;
       }
       if (!link) {
         msg.innerText = "Vui lòng nhập link";
+        msg.classList.add("text-red-600");
         return;
       }
       if (quantity <= 0) {
         msg.innerText = "Số lượng phải lớn hơn 0";
+        msg.classList.add("text-red-600");
         return;
       }
       if (quantity < selectedService.min) {
         msg.innerText = `Số lượng tối thiểu là ${selectedService.min}`;
+        msg.classList.add("text-red-600");
         return;
       }
       if (quantity > selectedService.max) {
         msg.innerText = `Số lượng tối đa là ${selectedService.max}`;
+        msg.classList.add("text-red-600");
         return;
       }
 
       try {
-        const res = await fetch("/api/orders", {  // hoặc /api/orders/create nếu backend dùng route đó
+        const res = await fetch("/api/orders/create", {  // ← SỬA ĐÚNG ENDPOINT KHỚP BACKEND
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
           },
           body: JSON.stringify({
-            service: serviceValue,  // gửi ID dịch vụ (s.service hoặc s.id)
+            service: serviceValue,
             link,
             quantity
           })
@@ -270,7 +276,6 @@
 
         if (res.ok) {
           msg.innerText = data.message || "Đặt đơn thành công!";
-          msg.classList.remove("text-red-600");
           msg.classList.add("text-green-600");
           // Reset form
           document.getElementById("service").value = "";
