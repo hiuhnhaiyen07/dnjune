@@ -1,321 +1,266 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - SMM Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Admin Dashboard - SMM Panel</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-
-body{
-font-family:'Inter',sans-serif;
-background:#f4f7fb;
-}
-
-.sidebar{
-background:#020617;
-}
-
-.card{
-background:white;
-border-radius:18px;
-box-shadow:0 10px 25px rgba(0,0,0,0.06);
-}
-
-#sidebar{
-transition:all .3s;
-}
-
-@media (max-width:768px){
-
-#sidebar{
-position:fixed;
-left:-260px;
-top:0;
-height:100%;
-z-index:50;
-}
-
-#sidebar.open{
-left:0;
-}
-
-}
-
-#overlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.4);
-display:none;
-z-index:40;
-}
-
-#overlay.show{
-display:block;
-}
-
-</style>
-
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #f1f5f9, #e2e8f0);
+    }
+    .sidebar {
+      background: linear-gradient(to bottom, #0f172a, #1e293b);
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+    }
+    #overlay {
+      backdrop-filter: blur(4px);
+      transition: opacity 0.3s ease;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 
-<body>
+<body class="antialiased">
 
-<div id="overlay"></div>
+<!-- OVERLAY -->
+<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
 
-<div class="flex h-screen">
+<div class="flex h-screen overflow-hidden">
 
-<!-- SIDEBAR -->
+  <!-- SIDEBAR -->
+  <div id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform -translate-x-full transition-transform duration-300 ease-in-out z-50 md:static md:translate-x-0">
+    <div class="p-6 text-2xl font-bold border-b border-gray-700 flex items-center gap-3">
+      <svg class="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+      ADMIN PANEL
+    </div>
 
-<div id="sidebar" class="sidebar w-64 text-white flex flex-col">
+    <nav class="p-4 space-y-1 overflow-y-auto">
+      <a href="dashboard.html" class="flex items-center px-4 py-3 rounded-lg bg-blue-600/80 text-white font-medium">
+        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+        Dashboard
+      </a>
 
-<div class="p-6 text-2xl font-bold border-b border-gray-700">
-ADMIN PANEL
-</div>
+      <a href="users.html" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-800/50 transition-colors">
+        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        Users
+      </a>
 
-<nav class="flex-1 p-4 space-y-2">
+      <a href="balance.html" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-800/50 transition-colors">
+        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a5 5 0 00-10 0v2m-3 7a3 3 0 003 3h10a3 3 0 003-3v-4a3 3 0 00-3-3H7a3 3 0 00-3 3v4z" />
+        </svg>
+        Balance
+      </a>
 
-<a href="dashboard.html" class="block px-4 py-3 rounded-lg bg-blue-600">
-Dashboard
-</a>
+      <a href="orders.html" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-800/50 transition-colors">
+        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        Orders
+      </a>
 
-<a href="users.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Users
-</a>
+      <!-- Các link khác giữ nguyên hoặc thêm tương tự -->
 
-<a href="balance.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Balance
-</a>
+      <div class="pt-6 mt-6 border-t border-gray-700">
+        <button onclick="logout()" class="flex items-center w-full px-4 py-3 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors">
+          <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Đăng xuất
+        </button>
+      </div>
+    </nav>
+  </div>
 
-<a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Orders
-</a>
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col overflow-hidden">
 
-<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Services
-</a>
+    <header class="bg-white shadow-sm p-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <!-- Nút 3 gạch luôn hiện -->
+        <button id="menuBtn" class="text-3xl text-gray-700 hover:text-blue-600 transition">
+          ☰
+        </button>
+        <h1 class="text-xl font-bold text-gray-800">Admin Dashboard</h1>
+      </div>
 
-<a href="payments.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Payments
-</a>
+      <button onclick="loadStats()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh
+      </button>
+    </header>
 
-<a href="transactions.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Transactions
-</a>
+    <main class="p-6 overflow-y-auto bg-gray-50 flex-1">
+      <!-- Loading -->
+      <div id="loading" class="text-center py-12 hidden">
+        <div class="loader mx-auto"></div>
+        <p class="mt-4 text-gray-500">Đang tải dữ liệu...</p>
+      </div>
 
-<a href="tickets.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Tickets
-</a>
+      <!-- STATS GRID -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="card p-6">
+          <p class="text-sm text-gray-500">Total Users</p>
+          <h2 id="users" class="text-3xl font-bold text-blue-600 mt-2">0</h2>
+        </div>
 
-<a href="profit.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Profit
-</a>
+        <div class="card p-6">
+          <p class="text-sm text-gray-500">Total Orders</p>
+          <h2 id="orders" class="text-3xl font-bold text-indigo-600 mt-2">0</h2>
+        </div>
 
-<a href="logs.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Logs
-</a>
+        <div class="card p-6">
+          <p class="text-sm text-gray-500">Total Revenue</p>
+          <h2 id="revenue" class="text-3xl font-bold text-green-600 mt-2">0 VND</h2>
+        </div>
 
-<a href="settings.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Settings
-</a>
+        <div class="card p-6">
+          <p class="text-sm text-gray-500">Running Orders</p>
+          <h2 id="runningOrders" class="text-3xl font-bold text-yellow-600 mt-2">0</h2>
+        </div>
+      </div>
 
-<a href="admins.html" class="block px-4 py-3 rounded-lg hover:bg-gray-700">
-Admins
-</a>
-
-</nav>
-  
-</div>
-
-<!-- MAIN -->
-
-<div class="flex-1 flex flex-col">
-
-<header class="bg-white shadow-sm p-4 flex items-center gap-3">
-
-<button id="menuBtn" class="text-2xl md:hidden">
-☰
-</button>
-
-<h1 class="font-semibold text-lg">
-Admin Dashboard
-</h1>
-
-</header>
-
-<main class="p-6 overflow-y-auto">
-
-<!-- STATS -->
-
-<div class="grid md:grid-cols-3 gap-6 mb-8">
-
-<div class="card p-6">
-
-<p class="text-gray-500 text-sm">
-Total Users
-</p>
-
-<h2 class="text-3xl font-bold text-blue-600" id="users">
-0
-</h2>
-
-</div>
-
-<div class="card p-6">
-
-<p class="text-gray-500 text-sm">
-Total Orders
-</p>
-
-<h2 class="text-3xl font-bold" id="orders">
-0
-</h2>
-
-</div>
-
-<div class="card p-6">
-
-<p class="text-gray-500 text-sm">
-Revenue
-</p>
-
-<h2 class="text-3xl font-bold text-green-600" id="revenue">
-0 VND
-</h2>
-
-</div>
-
-</div>
-
-<!-- SYSTEM INFO -->
-
-<div class="card p-6">
-
-<h2 class="font-semibold mb-4">
-Thông tin hệ thống
-</h2>
-
-<div class="space-y-2 text-sm text-gray-600">
-
-<div>
-API Provider: smmaz.net
-</div>
-
-<div>
-Server: Node.js + MongoDB
-</div>
-
-<div>
-Status: <span class="text-green-600">Online</span>
-</div>
-
-</div>
-
-</div>
-
-</main>
-
-</div>
-
+      <!-- SYSTEM INFO -->
+      <div class="card p-6">
+        <h2 class="font-bold text-lg mb-4 flex items-center gap-2">
+          <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Thông tin hệ thống
+        </h2>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-600">API Provider:</span>
+            <span class="font-medium">smmaz.net</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Server:</span>
+            <span class="font-medium">Node.js + MongoDB</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Status:</span>
+            <span class="text-green-600 font-bold">Online</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Last Update:</span>
+            <span id="lastUpdate" class="font-medium">Đang tải...</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 </div>
 
 <script>
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-const token = localStorage.getItem("token")
-const user = JSON.parse(localStorage.getItem("user") || "{}")
+  if (!token) {
+    window.location = "../login.html";
+  }
 
-if(!token){
-window.location="../login.html"
-}
+  if (user.role !== "admin") {
+    alert("Bạn không có quyền truy cập khu vực Admin!");
+    window.location = "../dashboard.html";
+  }
 
-/* CHECK ADMIN */
+  // Sidebar toggle mượt mà
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
 
-if(user.role !== "admin"){
-alert("Không có quyền admin")
-window.location="../dashboard.html"
-}
+  function toggleSidebar() {
+    sidebar.classList.toggle("-translate-x-full");
+    overlay.classList.toggle("hidden");
+  }
 
-/* LOAD STATS */
+  menuBtn.addEventListener("click", toggleSidebar);
+  overlay.addEventListener("click", toggleSidebar);
 
-async function loadStats(){
+  // Đóng sidebar khi click link trên mobile
+  document.querySelectorAll('#sidebar a').forEach(link => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth < 768) toggleSidebar();
+    });
+  });
 
-try{
+  // Load stats
+  async function loadStats() {
+    const loading = document.getElementById("loading");
+    loading.classList.remove("hidden");
 
-const res = await fetch("/api/admin/stats",{
-headers:{
-Authorization:"Bearer "+token
-}
-})
+    try {
+      const res = await fetch("/api/admin/stats", {
+        headers: { Authorization: "Bearer " + token }
+      });
 
-if(res.status === 401){
-logout()
-return
-}
+      if (res.status === 401) {
+        logout();
+        return;
+      }
 
-const data = await res.json()
+      if (!res.ok) throw new Error("API error");
 
-document.getElementById("users").innerText = data.users || 0
-document.getElementById("orders").innerText = data.orders || 0
+      const data = await res.json();
 
-document.getElementById("revenue").innerText =
-Number(data.revenue || 0).toLocaleString() + " VND"
+      document.getElementById("users").innerText = data.users?.toLocaleString() || "0";
+      document.getElementById("orders").innerText = data.orders?.toLocaleString() || "0";
+      document.getElementById("revenue").innerText = Number(data.revenue || 0).toLocaleString() + " VND";
+      document.getElementById("runningOrders").innerText = data.runningOrders?.toLocaleString() || "0";
 
-}catch(e){
+      document.getElementById("lastUpdate").innerText = new Date().toLocaleString("vi-VN");
+    } catch (e) {
+      console.error("Load stats error:", e);
+    } finally {
+      loading.classList.add("hidden");
+    }
+  }
 
-console.log("API lỗi")
+  function logout() {
+    if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location = "../login.html";
+    }
+  }
 
-}
-
-}
-
-/* SIDEBAR */
-
-const menuBtn = document.getElementById("menuBtn")
-const sidebar = document.getElementById("sidebar")
-const overlay = document.getElementById("overlay")
-
-if(menuBtn){
-
-menuBtn.addEventListener("click",()=>{
-
-sidebar.classList.toggle("open")
-overlay.classList.toggle("show")
-
-})
-
-overlay.addEventListener("click",()=>{
-
-sidebar.classList.remove("open")
-overlay.classList.remove("show")
-
-})
-
-}
-
-/* LOGOUT */
-
-function logout(){
-
-localStorage.removeItem("token")
-localStorage.removeItem("user")
-
-window.location="../login.html"
-
-}
-
-loadStats()
-
-setInterval(loadStats,30000)
-
+  // Khởi động
+  loadStats();
+  setInterval(loadStats, 30000);
 </script>
 
 </body>
