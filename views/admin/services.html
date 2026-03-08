@@ -284,12 +284,12 @@
     return Number(x || 0).toLocaleString('vi-VN') + " VND";
   }
 
-  // Load Services
+  // Load Services - ĐÃ SỬA ENDPOINT THÀNH /api/services
   async function loadServices() {
     document.getElementById("loading").classList.remove("hidden");
 
     try {
-      const res = await fetch("/api/admin/services", {
+      const res = await fetch("/api/services", {  // ← ĐÃ SỬA ĐÚNG ENDPOINT
         headers: { Authorization: "Bearer " + token }
       });
 
@@ -300,14 +300,17 @@
 
       if (!res.ok) {
         console.error("Lỗi tải services:", res.status, await res.text());
+        alert("Không thể tải danh sách dịch vụ. Vui lòng kiểm tra lại!");
         return;
       }
 
       services = await res.json();
+      console.log("Dịch vụ nhận được:", services); // Debug để kiểm tra
 
       renderServices(services);
     } catch (e) {
       console.error("loadServices error:", e);
+      alert("Lỗi kết nối server");
     } finally {
       document.getElementById("loading").classList.add("hidden");
     }
@@ -351,7 +354,7 @@
           </span>
         </td>
         <td class="py-4 px-6 text-center">
-          <button onclick="toggleService('${s._id || s.service}')" class="px-4 py-2 ${s.enabled ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} text-white rounded-lg transition">
+          <button onclick="toggleService('${s.service || s._id}')" class="px-4 py-2 ${s.enabled ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} text-white rounded-lg transition">
             ${s.enabled ? 'Disable' : 'Enable'}
           </button>
         </td>
