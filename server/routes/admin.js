@@ -10,7 +10,13 @@ const Transaction = require("../models/Transaction")
 const Ticket = require("../models/Ticket")
 
 const router = express.Router()
+const path = require('path');  // Thêm dòng này ở đầu file nếu chưa có
 
+// Route chính cho trang admin dashboard
+router.get('/', auth, admin, (req, res) => {
+  res.sendFile(path.join(__dirname, '../../views/dashboard.html'));
+  // Hoặc nếu path không khớp, thử: path.join(__dirname, '../../../views/dashboard.html')
+});
 /* =========================
    DASHBOARD STATS
 ========================= */
