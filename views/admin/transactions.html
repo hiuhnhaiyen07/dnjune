@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Transactions</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="max-w-6xl mx-auto p-6">
+
+<h1 class="text-2xl font-bold mb-6">
+Transaction History
+</h1>
+
+<div class="bg-white p-6 rounded-xl shadow">
+
+<table class="w-full text-sm">
+
+<thead>
+<tr class="border-b">
+<th>ID</th>
+<th>User</th>
+<th>Amount</th>
+<th>Type</th>
+<th>Date</th>
+</tr>
+</thead>
+
+<tbody id="transTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("token")
+
+async function loadTransactions(){
+
+const res = await fetch("/api/admin/transactions",{
+headers:{ Authorization:"Bearer "+token }
+})
+
+const data = await res.json()
+
+const table = document.getElementById("transTable")
+
+table.innerHTML=""
+
+data.forEach(t=>{
+
+const tr=document.createElement("tr")
+
+tr.innerHTML=`
+<td>${t._id}</td>
+<td>${t.user}</td>
+<td>${t.amount}</td>
+<td>${t.type}</td>
+<td>${t.date}</td>
+`
+
+table.appendChild(tr)
+
+})
+
+}
+
+loadTransactions()
+
+</script>
+
+</body>
+</html>
