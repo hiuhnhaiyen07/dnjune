@@ -115,7 +115,7 @@
             Tổng tiền: <span class="font-bold text-blue-600" id="price">0 VND</span>
           </div>
 
-          <button onclick="createOrder()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium">
+          <button onclick="submitOrder()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium">
             Đặt đơn
           </button>
 
@@ -132,7 +132,7 @@
     }
 
     let services = [];
-    let selected = null;
+    let selectedService = null;
 
     /* LOAD SERVICES */
     async function loadServices() {
@@ -147,13 +147,14 @@
         }
 
         services = await res.json();
+        console.log("Đã load", services.length, "dịch vụ");
 
         const select = document.getElementById("service");
         select.innerHTML = '<option value="">Chọn dịch vụ</option>';
 
         services.forEach(s => {
           const opt = document.createElement("option");
-          opt.value = s._id;
+          opt.value = s.service || s.id || s._id; // linh hoạt với backend trả service hoặc id
           opt.textContent = s.name;
           opt.dataset.rate = s.rate || 0;
           opt.dataset.min = s.min || "-";
@@ -161,7 +162,7 @@
           select.appendChild(opt);
         });
 
-        // Gắn event change
+        // Gắn sự kiện change ngay sau khi load
         select.addEventListener("change", updateInfo);
       } catch (e) {
         console.error("Lỗi load services:", e);
@@ -172,14 +173,14 @@
     /* UPDATE MIN/MAX & PRICE khi chọn dịch vụ */
     function updateInfo() {
       const select = document.getElementById("service");
-      const id = select.value;
+      const value = select.value;
 
-      selected = services.find(s => s._id === id);
+      selectedService = services.find(s => (s.service || s.id || s._id) == value);
 
-      if (selected) {
-        document.getElementById("min").innerText = selected.min || "-";
-        document.getElementById("max").innerText = selected.max || "-";
-        calculatePrice(); // Tính lại giá khi đổi dịch vụ
+      if (selectedService) {
+        document.getElementById("min").innerText = selectedService.min || "-";
+        document.getElementById("max").innerText = selectedService.max || "-";
+        calculatePrice(); // Tính giá ngay khi chọn
       } else {
         document.getElementById("min").innerText = "-";
         document.getElementById("max").innerText = "-";
@@ -194,25 +195,25 @@
       const qInput = document.getElementById("quantity");
       const q = Number(qInput.value) || 0;
 
-      if (!selected || q <= 0) {
+      if (!selectedService || q <= 0) {
         document.getElementById("price").innerText = "0 VND";
         return;
       }
 
-      const rate = Number(selected.rate) || 0;
+      const rate = Number(selectedService.rate) || 0;
       const total = Math.round((q / 1000) * rate);
 
-      document.getElementById("price").innerText = total.toLocaleString() + " VND";
+      document.getElementById("price").innerText = total.toLocaleString("vi-VN") + " VND";
     }
 
     /* EVENT INPUT QUANTITY */
     document.getElementById("quantity").addEventListener("input", () => {
-      const q = Number(document.getElementById("quantity").value);
-      if (selected) {
-        if (q < selected.min && q > 0) {
-          document.getElementById("price").innerText = "Chưa đủ min (" + selected.min + ")";
-        } else if (q > selected.max) {
-          document.getElementById("price").innerText = "Vượt max (" + selected.max + ")";
+      if (selectedService) {
+        const q = Number(document.getElementById("quantity").value);
+        if (q < selectedService.min && q > 0) {
+          document.getElementById("price").innerText = "Chưa đủ min (" + selectedService.min + ")";
+        } else if (q > selectedService.max) {
+          document.getElementById("price").innerText = "Vượt max (" + selectedService.max + ")";
         } else {
           calculatePrice();
         }
@@ -220,17 +221,17 @@
     });
 
     /* CREATE ORDER */
-    async function createOrder() {
+    async function submitOrder() {
       const msg = document.getElementById("message");
       msg.innerText = "";
 
-      const serviceId = document.getElementById("service").value;
+      const serviceValue = document.getElementById("service").value;
       const link = document.getElementById("link").value.trim();
       const quantity = Number(document.getElementById("quantity").value);
 
-      selected = services.find(s => s._id === serviceId);
+      selectedService = services.find(s => (s.service || s.id || s._id) == serviceValue);
 
-      if (!selected) {
+      if (!selectedService) {
         msg.innerText = "Vui lòng chọn dịch vụ";
         return;
       }
@@ -242,24 +243,24 @@
         msg.innerText = "Số lượng phải lớn hơn 0";
         return;
       }
-      if (quantity < selected.min) {
-        msg.innerText = `Số lượng tối thiểu là ${selected.min}`;
+      if (quantity < selectedService.min) {
+        msg.innerText = `Số lượng tối thiểu là ${selectedService.min}`;
         return;
       }
-      if (quantity > selected.max) {
-        msg.innerText = `Số lượng tối đa là ${selected.max}`;
+      if (quantity > selectedService.max) {
+        msg.innerText = `Số lượng tối đa là ${selectedService.max}`;
         return;
       }
 
       try {
-        const res = await fetch("/api/orders/create", {
+        const res = await fetch("/api/orders", {  // hoặc /api/orders/create nếu backend dùng route đó
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + token
+            "Authorization": "Bearer " + token
           },
           body: JSON.stringify({
-            service: serviceId,  // gửi _id của dịch vụ
+            service: serviceValue,  // gửi ID dịch vụ (s.service hoặc s.id)
             link,
             quantity
           })
@@ -269,117 +270,28 @@
 
         if (res.ok) {
           msg.innerText = data.message || "Đặt đơn thành công!";
-<script>
-  let services = []; // Lưu danh sách dịch vụ từ API
-
-  // Load dịch vụ khi trang mở
-  async function loadServices() {
-    try {
-      const res = await fetch("/api/services");
-      if (!res.ok) throw new Error("Lỗi tải dịch vụ");
-      services = await res.json();
-
-      const select = document.getElementById("serviceSelect"); // ID của <select>
-      select.innerHTML = '<option value="">Chọn dịch vụ</option>';
-
-      services.forEach(s => {
-        const option = document.createElement("option");
-        option.value = s.service; // hoặc s.id nếu backend trả s.id
-        option.text = `${s.name} (Rate: ${s.rate} VND/1000)`;
-        option.dataset.min = s.min;
-        option.dataset.max = s.max;
-        option.dataset.rate = s.rate;
-        select.appendChild(option);
-      });
-
-      console.log("Loaded", services.length, "dịch vụ"); // debug
-    } catch (err) {
-      console.error(err);
-      alert("Không tải được danh sách dịch vụ!");
-    }
-  }
-
-  // Khi chọn dịch vụ → cập nhật Min/Max và tính tiền
-  function updateServiceInfo() {
-    const select = document.getElementById("serviceSelect");
-    const selectedOption = select.options[select.selectedIndex];
-
-    if (!selectedOption || !selectedOption.value) {
-      document.getElementById("min").textContent = "-";
-      document.getElementById("max").textContent = "-";
-      document.getElementById("total").textContent = "0 VND";
-      return;
-    }
-
-    const min = selectedOption.dataset.min || "-";
-    const max = selectedOption.dataset.max || "-";
-    const rate = Number(selectedOption.dataset.rate) || 0;
-
-    document.getElementById("min").textContent = min;
-    document.getElementById("max").textContent = max;
-
-    // Tính tổng tiền
-    calculateTotal(rate);
-  }
-
-  // Tính tổng tiền khi thay đổi số lượng
-  function calculateTotal(rate = 0) {
-    const quantity = Number(document.getElementById("quantity").value) || 0;
-    const total = quantity * (rate / 1000); // rate là giá /1000 lượt
-    document.getElementById("total").textContent = total.toLocaleString("vi-VN") + " VND";
-  }
-
-  // Gửi đơn hàng
-  async function createOrder() {
-    const serviceId = document.getElementById("serviceSelect").value;
-    const link = document.getElementById("link").value.trim();
-    const quantity = Number(document.getElementById("quantity").value);
-
-    if (!serviceId || !link || quantity <= 0) {
-      alert("Vui lòng chọn dịch vụ, nhập link và số lượng hợp lệ!");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.getItem("token") // nếu cần token
-        },
-        body: JSON.stringify({ service: serviceId, link, quantity })
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Đặt đơn thành công! Order ID: " + (data._id || data.orderId));
-        // Reset form
-        document.getElementById("serviceSelect").value = "";
-        document.getElementById("link").value = "";
-        document.getElementById("quantity").value = "";
-        document.getElementById("total").textContent = "0 VND";
-      } else {
-        alert("Đặt đơn thất bại: " + (data.error || "Lỗi server"));
+          msg.classList.remove("text-red-600");
+          msg.classList.add("text-green-600");
+          // Reset form
+          document.getElementById("service").value = "";
+          document.getElementById("link").value = "";
+          document.getElementById("quantity").value = "";
+          document.getElementById("price").innerText = "0 VND";
+          document.getElementById("min").innerText = "-";
+          document.getElementById("max").innerText = "-";
+        } else {
+          msg.innerText = data.error || data.message || "Đặt đơn thất bại";
+          msg.classList.add("text-red-600");
+        }
+      } catch (e) {
+        console.error("Lỗi đặt đơn:", e);
+        msg.innerText = "Lỗi kết nối: " + e.message;
+        msg.classList.add("text-red-600");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Lỗi kết nối: " + err.message);
     }
-  }
 
-  // Gọi load khi trang mở
-  window.onload = loadServices;
-
-  // Gắn sự kiện change cho dropdown
-  document.getElementById("serviceSelect").addEventListener("change", updateServiceInfo);
-
-  // Gắn sự kiện input cho số lượng
-  document.getElementById("quantity").addEventListener("input", () => {
-    const select = document.getElementById("serviceSelect");
-    const rate = select.options[select.selectedIndex]?.dataset.rate || 0;
-    calculateTotal(rate);
-  });
-</script>
+    // Khởi động
+    loadServices();
+  </script>
 </body>
 </html>
