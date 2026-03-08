@@ -269,33 +269,117 @@
 
         if (res.ok) {
           msg.innerText = data.message || "Đặt đơn thành công!";
-          msg.classList.remove("text-red-600");
-          msg.classList.add("text-green-600");
-          // Optional: reset form
-          document.getElementById("link").value = "";
-          document.getElementById("quantity").value = "";
-          document.getElementById("price").innerText = "0 VND";
-        } else {
-          msg.innerText = data.error || data.message || "Đặt đơn thất bại";
-        }
-      } catch (e) {
-        console.error("createOrder error:", e);
-        msg.innerText = "Lỗi kết nối server";
-      }
-    }
+<script>
+  let services = []; // Lưu danh sách dịch vụ từ API
 
-    /* SIDEBAR MOBILE */
-    const menuBtn = document.getElementById("menuBtn");
-    const sidebar = document.getElementById("sidebar");
+  // Load dịch vụ khi trang mở
+  async function loadServices() {
+    try {
+      const res = await fetch("/api/services");
+      if (!res.ok) throw new Error("Lỗi tải dịch vụ");
+      services = await res.json();
 
-    if (menuBtn) {
-      menuBtn.addEventListener("click", () => {
-        sidebar.classList.toggle("open");
+      const select = document.getElementById("serviceSelect"); // ID của <select>
+      select.innerHTML = '<option value="">Chọn dịch vụ</option>';
+
+      services.forEach(s => {
+        const option = document.createElement("option");
+        option.value = s.service; // hoặc s.id nếu backend trả s.id
+        option.text = `${s.name} (Rate: ${s.rate} VND/1000)`;
+        option.dataset.min = s.min;
+        option.dataset.max = s.max;
+        option.dataset.rate = s.rate;
+        select.appendChild(option);
       });
+
+      console.log("Loaded", services.length, "dịch vụ"); // debug
+    } catch (err) {
+      console.error(err);
+      alert("Không tải được danh sách dịch vụ!");
+    }
+  }
+
+  // Khi chọn dịch vụ → cập nhật Min/Max và tính tiền
+  function updateServiceInfo() {
+    const select = document.getElementById("serviceSelect");
+    const selectedOption = select.options[select.selectedIndex];
+
+    if (!selectedOption || !selectedOption.value) {
+      document.getElementById("min").textContent = "-";
+      document.getElementById("max").textContent = "-";
+      document.getElementById("total").textContent = "0 VND";
+      return;
     }
 
-    // Khởi động
-    loadServices();
-  </script>
+    const min = selectedOption.dataset.min || "-";
+    const max = selectedOption.dataset.max || "-";
+    const rate = Number(selectedOption.dataset.rate) || 0;
+
+    document.getElementById("min").textContent = min;
+    document.getElementById("max").textContent = max;
+
+    // Tính tổng tiền
+    calculateTotal(rate);
+  }
+
+  // Tính tổng tiền khi thay đổi số lượng
+  function calculateTotal(rate = 0) {
+    const quantity = Number(document.getElementById("quantity").value) || 0;
+    const total = quantity * (rate / 1000); // rate là giá /1000 lượt
+    document.getElementById("total").textContent = total.toLocaleString("vi-VN") + " VND";
+  }
+
+  // Gửi đơn hàng
+  async function createOrder() {
+    const serviceId = document.getElementById("serviceSelect").value;
+    const link = document.getElementById("link").value.trim();
+    const quantity = Number(document.getElementById("quantity").value);
+
+    if (!serviceId || !link || quantity <= 0) {
+      alert("Vui lòng chọn dịch vụ, nhập link và số lượng hợp lệ!");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token") // nếu cần token
+        },
+        body: JSON.stringify({ service: serviceId, link, quantity })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Đặt đơn thành công! Order ID: " + (data._id || data.orderId));
+        // Reset form
+        document.getElementById("serviceSelect").value = "";
+        document.getElementById("link").value = "";
+        document.getElementById("quantity").value = "";
+        document.getElementById("total").textContent = "0 VND";
+      } else {
+        alert("Đặt đơn thất bại: " + (data.error || "Lỗi server"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi kết nối: " + err.message);
+    }
+  }
+
+  // Gọi load khi trang mở
+  window.onload = loadServices;
+
+  // Gắn sự kiện change cho dropdown
+  document.getElementById("serviceSelect").addEventListener("change", updateServiceInfo);
+
+  // Gắn sự kiện input cho số lượng
+  document.getElementById("quantity").addEventListener("input", () => {
+    const select = document.getElementById("serviceSelect");
+    const rate = select.options[select.selectedIndex]?.dataset.rate || 0;
+    calculateTotal(rate);
+  });
+</script>
 </body>
 </html>
