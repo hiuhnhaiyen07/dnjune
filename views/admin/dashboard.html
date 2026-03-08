@@ -75,7 +75,7 @@
 
 <div class="flex h-screen overflow-hidden">
 
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR - ĐẦY ĐỦ 13 MỤC -->
   <div id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform -translate-x-full transition-transform duration-400 ease-in-out z-50 md:static md:translate-x-0 shadow-2xl md:shadow-none">
     <div class="p-6 text-2xl font-bold border-b border-slate-700 flex items-center gap-4">
       <svg class="w-10 h-10 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -355,6 +355,97 @@
         });
 
         if (res.status === 401) {
+script>
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+    if (!token) {
+      window.location = "../login.html";
+    }
+
+    if (user.role !== "admin") {
+      alert("Bạn không có quyền truy cập khu vực Admin!");
+      window.location = "../dashboard.html";
+    }
+
+    // Dark mode toggle & persist
+    const htmlRoot = document.getElementById("htmlRoot");
+    const darkToggle = document.getElementById("darkModeToggle");
+    const sunIcon = document.getElementById("sunIcon");
+    const moonIcon = document.getElementById("moonIcon");
+
+    function toggleDarkMode() {
+      htmlRoot.classList.toggle("dark");
+      localStorage.setItem("darkMode", htmlRoot.classList.contains("dark"));
+      updateIcons();
+    }
+
+    function updateIcons() {
+      if (htmlRoot.classList.contains("dark")) {
+        moonIcon.classList.remove("hidden");
+        sunIcon.classList.add("hidden");
+      } else {
+        sunIcon.classList.remove("hidden");
+        moonIcon.classList.add("hidden");
+      }
+    }
+
+    if (localStorage.getItem("darkMode") === "true" || (!localStorage.getItem("darkMode") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      htmlRoot.classList.add("dark");
+    }
+    updateIcons();
+
+    if (darkToggle) darkToggle.addEventListener("click", toggleDarkMode);
+
+    // Sidebar toggle
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    function toggleSidebar() {
+      sidebar.classList.toggle("-translate-x-full");
+      overlay.classList.toggle("hidden");
+    }
+
+    menuBtn.addEventListener("click", toggleSidebar);
+    overlay.addEventListener("click", toggleSidebar);
+
+    document.querySelectorAll('#sidebar a').forEach(link => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth < 768) toggleSidebar();
+      });
+    });
+
+    // Toastify thông báo đẹp
+    function showToast(message, type = "success") {
+      Toastify({
+        text: message,
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "right",
+        backgroundColor: type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6",
+        stopOnFocus: true,
+        style: {
+          borderRadius: "12px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+          fontFamily: "'Inter', sans-serif",
+          padding: "16px 24px",
+          fontSize: "16px"
+        }
+      }).showToast();
+    }
+
+    // Load stats with animation
+    async function loadStats() {
+      document.getElementById("loading").classList.remove("hidden");
+
+      try {
+        const res = await fetch("/api/admin/stats", {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        if (res.status === 401) {
           logout();
           return;
         }
@@ -385,4 +476,28 @@
         animateNumber(document.getElementById("revenue"), Number(data.revenue || 0), " VND");
         animateNumber(document.getElementById("runningOrders"), data.runningOrders || 0);
 
-        
+        document.getElementById("lastUpdate").innerText = new Date().toLocaleString("vi-VN");
+
+        showToast("Dữ liệu dashboard đã cập nhật!", "success");
+      } catch (e) {
+        console.error("Load stats error:", e);
+        showToast("Không tải được dữ liệu dashboard. Lỗi: " + e.message, "error");
+      } finally {
+        document.getElementById("loading").classList.add("hidden");
+      }
+    }
+
+    function logout() {
+      if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi Admin Panel?")) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location = "../login.html";
+      }
+    }
+
+    // Khởi động
+    loadStats();
+    setInterval(loadStats, 30000); // Auto refresh mỗi 30 giây
+  </script>
+</body>
+</html> 
