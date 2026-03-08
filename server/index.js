@@ -53,6 +53,24 @@ app.use("/api/user", userRoutes)
 app.use(express.static(path.join(__dirname, "../public")))
 app.use(express.static(path.join(__dirname, "../views")))
 
+// Import middleware (nếu chưa có ở đầu file, thêm dòng này)
+const auth = require("./middleware/auth");
+const admin = require("./middleware/admin");
+
+// Route cho trang admin dashboard
+app.get("/admin", auth, admin, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/dashboard.html"));
+});
+
+// Optional: cho các trang admin khác nếu có trong views/admin/ (hiện repo không có folder admin/)
+app.get("/admin/:page", auth, admin, (req, res) => {
+  const page = req.params.page;
+  const filePath = path.join(__dirname, `../views/\( {page}.html`); // hoặc ../views/admin/ \){page}.html nếu có folder
+  res.sendFile(filePath, (err) => {
+    if (err) res.status(404).send("Trang không tồn tại");
+  });
+});
+
 /* ADMIN DASHBOARD ROUTES */
 // Trang chính admin: /admin → dashboard.html
 app.get("/admin", auth, admin, (req, res) => {
