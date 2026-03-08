@@ -1,15 +1,13 @@
 // server/routes/services.js
 const express = require("express");
-const auth = require("../middleware/auth");
-
 const servicesConfig = require("../config/services");
 
 const router = express.Router();
 
 /* =========================
-   GET ALL SERVICES
+   GET ALL SERVICES (PUBLIC - không cần auth)
 ========================= */
-router.get("/", auth, async (req, res) => {
+router.get("/", (req, res) => {
   try {
     const services = [];
 
@@ -28,11 +26,13 @@ router.get("/", auth, async (req, res) => {
       });
     });
 
-    // Sắp xếp theo tên hoặc category nếu muốn (optional)
-    // services.sort((a, b) => a.name.localeCompare(b.name));
+    // Sắp xếp theo tên (tùy chọn, giúp dropdown đẹp hơn)
+    services.sort((a, b) => a.name.localeCompare(b.name));
+
+    console.log("API /api/services trả về:", services.length, "dịch vụ"); // Debug logs
 
     if (services.length === 0) {
-      return res.json([]); // Trả mảng rỗng nếu config không có dịch vụ
+      return res.json([]); // Trả mảng rỗng nếu config không có
     }
 
     res.json(services);
