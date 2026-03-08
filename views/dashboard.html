@@ -2,537 +2,333 @@
 <html lang="vi">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SMM Panel</title>
 
-<title>Dashboard - SMM Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<script src="https://cdn.tailwindcss.com"></script>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-
-body{
-font-family:'Inter',sans-serif;
-background:#f4f7fb;
-}
-
-.sidebar{
-background:#0f172a;
-}
-
-.card{
-background:white;
-border-radius:18px;
-box-shadow:0 10px 25px rgba(0,0,0,0.05);
-}
-
-#sidebar{
-transition:all .3s;
-}
-
-@media (max-width:768px){
-
-#sidebar{
-position:fixed;
-left:-260px;
-top:0;
-height:100%;
-z-index:50;
-}
-
-#sidebar.open{
-left:0;
-}
-
-}
-
-#overlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.4);
-z-index:40;
-display:none;
-}
-
-#overlay.show{
-display:block;
-}
-
-</style>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f4f7fb;
+    }
+    .sidebar {
+      background: #0f172a;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    #sidebar {
+      transition: all .3s;
+    }
+    @media (max-width:768px) {
+      #sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100%;
+        z-index: 50;
+      }
+      #sidebar.open {
+        left: 0;
+      }
+    }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,.4);
+      z-index: 40;
+      display: none;
+    }
+    #overlay.show {
+      display: block;
+    }
+  </style>
 </head>
 
 <body>
-
-<div class="flex h-screen">
-
-<div id="overlay"></div>
-
-<!-- SIDEBAR -->
-
-<div id="sidebar" class="sidebar w-64 text-white flex flex-col">
-
-<div class="p-6 text-2xl font-bold border-b border-slate-700">
-SMM PANEL
-</div>
-
-<nav class="flex-1 p-4 space-y-2">
-
-<a href="dashboard.html" class="block px-4 py-3 rounded-lg bg-blue-600">Dashboard</a>
-
-<a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Dịch vụ</a>
-
-<a href="add-order.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Tạo đơn</a>
-
-<a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Đơn hàng</a>
-
-<a href="deposit.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Nạp tiền</a>
-
-<a href="support.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Hỗ trợ</a>
-
-</nav>
-
-<div class="p-4 border-t border-slate-700">
-
-<button onclick="logout()" class="w-full bg-red-500 py-2 rounded-lg">
-Đăng xuất
-</button>
-
-</div>
-
-</div>
-
-<!-- MAIN -->
-
-<div class="flex-1 flex flex-col">
-
-<header class="bg-white shadow-sm p-4 flex justify-between items-center">
-
-<div class="flex items-center gap-3">
-
-<button id="menuBtn" class="text-2xl md:hidden">☰</button>
-
-<div class="font-semibold text-lg">Dashboard</div>
-
-</div>
-
-<div class="font-medium" id="username">User</div>
-
-</header>
-
-<main class="p-6 overflow-y-auto">
-
-<!-- STATS -->
-
-<div class="grid md:grid-cols-4 gap-6 mb-8">
-
-<div class="card p-6">
-<p class="text-gray-500 text-sm">Số dư</p>
-<h2 class="text-2xl font-bold text-blue-600" id="balance">0 VND</h2>
-</div>
-
-<div class="card p-6">
-<p class="text-gray-500 text-sm">Tổng đơn</p>
-<h2 class="text-2xl font-bold" id="totalOrders">0</h2>
-</div>
-
-<div class="card p-6">
-<p class="text-gray-500 text-sm">Đang chạy</p>
-<h2 class="text-2xl font-bold text-yellow-500" id="runningOrders">0</h2>
-</div>
-
-<div class="card p-6">
-<p class="text-gray-500 text-sm">Hoàn thành</p>
-<h2 class="text-2xl font-bold text-green-500" id="completedOrders">0</h2>
-</div>
-
-</div>
-
-<!-- QUICK ORDER -->
-
-<div class="card p-6 mb-8">
-
-<h3 class="font-semibold mb-4">Tạo đơn nhanh</h3>
-
-<div class="grid md:grid-cols-3 gap-4">
-
-<select id="service" class="border p-3 rounded-lg"></select>
-
-<input type="text" id="link" placeholder="Link bài viết" class="border p-3 rounded-lg"/>
-
-<input type="number" id="quantity" placeholder="Số lượng" class="border p-3 rounded-lg"/>
-
-</div>
-
-<button onclick="createOrder()" class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg">
-Đặt đơn
-</button>
-
-</div>
-
-<!-- ORDERS -->
-
-<div class="card p-6">
-
-<h3 class="font-semibold mb-4">Đơn gần đây</h3>
-
-<table class="w-full text-sm">
-
-<thead>
-
-<tr class="border-b">
-<th class="py-2 text-left">ID</th>
-<th>Service</th>
-<th>Link</th>
-<th>Status</th>
-</tr>
-
-</thead>
-
-<tbody id="ordersTable"></tbody>
-
-</table>
-
-</div>
-
-</main>
-
-</div>
-
-</div>
-
-<script>
-
-const token = localStorage.getItem("token")
-
-if(!token){
-window.location="login.html"
-}
-
-/* LOAD USER */
-
-async function loadUser(){
-
-try{
-
-const res = await fetch("/api/user/me",{
-headers:{ Authorization:"Bearer "+token }
-})
-
-if(res.status===401){
-logout()
-return
-}
-
-const user = await res.json()
-
-document.getElementById("username").innerText =
-user.username || "User"
-
-document.getElementById("balance").innerText =
-Number(user.balance || 0).toLocaleString()+" VND"
-
-}catch(e){
-
-console.log("loadUser error",e)
-
-}
-
-}
-
-/* LOAD SERVICES */
-
-async function loadServices(){
-
-const res = await fetch("/api/services",{
-headers:{ Authorization:"Bearer "+token }
-})
-
-const data = await res.json()
-
-const select = document.getElementById("service")
-
-select.innerHTML=""
-
-data.forEach(s=>{
-
-const opt = document.createElement("option")
-
-opt.value = s.service
-opt.textContent = s.name+" - "+Number(s.rate).toLocaleString()+" VND"
-
-select.appendChild(opt)
-
-})
-
-}
-
-/* CREATE ORDER */
-
-async function createOrder(){
-
-const service = document.getElementById("service").value
-const link = document.getElementById("link").value
-const quantity = document.getElementById("quantity").value
-
-const res = await fetch("/api/orders/create",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json",
-Authorization:"Bearer "+token
-},
-
-body:JSON.stringify({
-service,
-link,
-quantity
-})
-
-})
-
-const data = await res.json()
-
-alert(data.message || data.error)
-<script>
-
-const token = localStorage.getItem("token")
-
-if(!token){
-window.location="login.html"
-}
-
-/* LOAD USER */
-
-async function loadUser(){
-
-try{
-
-const res = await fetch("/api/user/me",{
-headers:{ Authorization:"Bearer "+token }
-})
-
-if(!res.ok){
-if(res.status===401) logout()
-return
-}
-
-const user = await res.json()
-
-if(!user) return
-
-document.getElementById("username").innerText =
-user.username || "User"
-
-const balance = Number(user.balance) || 0
-
-document.getElementById("balance").innerText =
-balance.toLocaleString()+" VND"
-
-}catch(e){
-
-console.log("loadUser error",e)
-
-}
-
-}
-
-/* LOAD SERVICES */
-
-async function loadServices(){
-
-try{
-
-const res = await fetch("/api/services",{
-headers:{ Authorization:"Bearer "+token }
-})
-
-if(!res.ok) return
-
-const data = await res.json()
-
-const select = document.getElementById("service")
-
-select.innerHTML=""
-
-data.forEach(s=>{
-
-const opt = document.createElement("option")
-
-opt.value = s.service
-opt.textContent =
-s.name+" - "+Number(s.rate).toLocaleString()+" VND"
-
-select.appendChild(opt)
-
-})
-
-}catch(e){
-console.log("services error",e)
-}
-
-}
-
-/* CREATE ORDER */
-
-async function createOrder(){
-
-const service = document.getElementById("service").value
-const link = document.getElementById("link").value
-const quantity = document.getElementById("quantity").value
-
-if(!link || !quantity){
-alert("Nhập link và số lượng")
-return
-}
-
-try{
-
-const res = await fetch("/api/orders/create",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json",
-Authorization:"Bearer "+token
-},
-
-body:JSON.stringify({
-service,
-link,
-quantity
-})
-
-})
-
-const data = await res.json()
-
-alert(data.message || data.error || "Tạo đơn thành công")
-
-document.getElementById("link").value=""
-document.getElementById("quantity").value=""
-
-loadOrders()
-loadUser()
-
-}catch(e){
-
-console.log("create order error",e)
-
-}
-
-}
-
-/* LOAD ORDERS */
-
-async function loadOrders(){
-
-try{
-
-const res = await fetch("/api/orders/my",{
-headers:{ Authorization:"Bearer "+token }
-})
-
-if(!res.ok) return
-
-const data = await res.json()
-
-const table = document.getElementById("ordersTable")
-
-table.innerHTML=""
-
-let running=0
-let completed=0
-
-data.slice(0,5).forEach(o=>{
-
-if(o.status==="processing") running++
-if(o.status==="completed") completed++
-
-let statusColor="text-gray-500"
-
-if(o.status==="processing") statusColor="text-yellow-500"
-if(o.status==="completed") statusColor="text-green-500"
-if(o.status==="cancelled") statusColor="text-red-500"
-
-const tr=document.createElement("tr")
-
-tr.innerHTML=`
-<td class="py-2">${o._id}</td>
-<td>${o.service}</td>
-<td class="truncate max-w-[200px]">${o.link}</td>
-<td class="${statusColor} font-medium">${o.status}</td>
-`
-
-table.appendChild(tr)
-
-})
-
-document.getElementById("totalOrders").innerText=data.length
-document.getElementById("runningOrders").innerText=running
-document.getElementById("completedOrders").innerText=completed
-
-}catch(e){
-
-console.log("orders error",e)
-
-}
-
-}
-
-/* LOGOUT */
-
-function logout(){
-
-localStorage.removeItem("token")
-window.location="login.html"
-
-}
-
-/* INIT */
-
-async function init(){
-
-await loadUser()
-await loadServices()
-await loadOrders()
-
-}
-
-/* AUTO REFRESH */
-
-setInterval(()=>{
-loadUser()
-},2000)
-
-setInterval(()=>{
-loadOrders()
-},8000)
-
-/* SIDEBAR */
-
-const menuBtn=document.getElementById("menuBtn")
-const sidebar=document.getElementById("sidebar")
-const overlay=document.getElementById("overlay")
-
-menuBtn.addEventListener("click",()=>{
-sidebar.classList.toggle("open")
-overlay.classList.toggle("show")
-})
-
-overlay.addEventListener("click",()=>{
-sidebar.classList.remove("open")
-overlay.classList.remove("show")
-})
-
-init()
-
-</script>
-
+  <div class="flex h-screen">
+    <div id="overlay"></div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="sidebar w-64 text-white flex flex-col">
+      <div class="p-6 text-2xl font-bold border-b border-slate-700">
+        SMM PANEL
+      </div>
+      <nav class="flex-1 p-4 space-y-2">
+        <a href="dashboard.html" class="block px-4 py-3 rounded-lg bg-blue-600">Dashboard</a>
+        <a href="services.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Dịch vụ</a>
+        <a href="add-order.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Tạo đơn</a>
+        <a href="orders.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Đơn hàng</a>
+        <a href="deposit.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Nạp tiền</a>
+        <a href="support.html" class="block px-4 py-3 rounded-lg hover:bg-slate-700">Hỗ trợ</a>
+      </nav>
+      <div class="p-4 border-t border-slate-700">
+        <button onclick="logout()" class="w-full bg-red-500 py-2 rounded-lg">
+          Đăng xuất
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="flex-1 flex flex-col">
+      <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <button id="menuBtn" class="text-2xl md:hidden">☰</button>
+          <div class="font-semibold text-lg">Dashboard</div>
+        </div>
+        <div class="font-medium" id="username">User</div>
+      </header>
+
+      <main class="p-6 overflow-y-auto">
+        <!-- STATS -->
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
+          <div class="card p-6">
+            <p class="text-gray-500 text-sm">Số dư</p>
+            <h2 class="text-2xl font-bold text-blue-600" id="balance">0 VND</h2>
+          </div>
+          <div class="card p-6">
+            <p class="text-gray-500 text-sm">Tổng đơn</p>
+            <h2 class="text-2xl font-bold" id="totalOrders">0</h2>
+          </div>
+          <div class="card p-6">
+            <p class="text-gray-500 text-sm">Đang chạy</p>
+            <h2 class="text-2xl font-bold text-yellow-500" id="runningOrders">0</h2>
+          </div>
+          <div class="card p-6">
+            <p class="text-gray-500 text-sm">Hoàn thành</p>
+            <h2 class="text-2xl font-bold text-green-500" id="completedOrders">0</h2>
+          </div>
+        </div>
+
+        <!-- QUICK ORDER -->
+        <div class="card p-6 mb-8">
+          <h3 class="font-semibold mb-4">Tạo đơn nhanh</h3>
+          <div class="grid md:grid-cols-3 gap-4">
+            <select id="service" class="border p-3 rounded-lg"></select>
+            <input type="text" id="link" placeholder="Link bài viết" class="border p-3 rounded-lg"/>
+            <input type="number" id="quantity" placeholder="Số lượng" class="border p-3 rounded-lg"/>
+          </div>
+          <button id="createBtn" onclick="createOrder()" class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg">
+            Đặt đơn
+          </button>
+        </div>
+
+        <!-- ORDERS -->
+        <div class="card p-6">
+          <h3 class="font-semibold mb-4">Đơn gần đây</h3>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b">
+                <th class="py-2 text-left">ID</th>
+                <th>Service</th>
+                <th>Link</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable"></tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location = "login.html";
+    }
+
+    /* LOAD USER - ĐÃ SỬA ĐỂ UPDATE BALANCE CHÍNH XÁC */
+    async function loadUser() {
+      try {
+        const res = await fetch("/api/user/me", {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        if (res.status === 401) {
+          logout();
+          return;
+        }
+
+        if (!res.ok) {
+          console.log("Lỗi fetch user:", res.status, await res.text());
+          return;
+        }
+
+        const user = await res.json();
+
+        // Debug: in ra dữ liệu nhận được
+        console.log("Dữ liệu user:", user);
+
+        if (user.error) {
+          console.log("Server trả lỗi:", user.error);
+          return;
+        }
+
+        document.getElementById("username").innerText = user.username || "User";
+
+        const balance = Number(user.balance) || 0;
+        document.getElementById("balance").innerText = balance.toLocaleString() + " VND";
+      } catch (e) {
+        console.error("loadUser error:", e);
+      }
+    }
+
+    /* LOAD SERVICES */
+    async function loadServices() {
+      try {
+        const res = await fetch("/api/services", {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        if (!res.ok) {
+          console.log("Lỗi load services:", res.status);
+          return;
+        }
+
+        const data = await res.json();
+        const select = document.getElementById("service");
+        select.innerHTML = "";
+
+        data.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.service;
+          opt.textContent = s.name + " - " + Number(s.rate).toLocaleString() + " VND";
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.log("services error", e);
+      }
+    }
+
+    /* CREATE ORDER - ĐÃ CẢI THIỆN UX */
+    async function createOrder() {
+      const service = document.getElementById("service").value;
+      const link = document.getElementById("link").value.trim();
+      const quantity = document.getElementById("quantity").value;
+
+      if (!link || !quantity || quantity <= 0) {
+        alert("Vui lòng nhập link và số lượng hợp lệ!");
+        return;
+      }
+
+      const btn = document.getElementById("createBtn");
+      btn.disabled = true;
+      btn.textContent = "Đang xử lý...";
+
+      try {
+        const res = await fetch("/api/orders/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token
+          },
+          body: JSON.stringify({ service, link, quantity })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert(data.message || "Tạo đơn thành công!");
+          document.getElementById("link").value = "";
+          document.getElementById("quantity").value = "";
+          loadOrders();
+          loadUser(); // refresh balance
+        } else {
+          alert("Lỗi: " + (data.error || data.message || "Không thể tạo đơn"));
+        }
+      } catch (e) {
+        console.log("create order error", e);
+        alert("Lỗi kết nối server");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Đặt đơn";
+      }
+    }
+
+    /* LOAD ORDERS */
+    async function loadOrders() {
+      try {
+        const res = await fetch("/api/orders/my", {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const table = document.getElementById("ordersTable");
+        table.innerHTML = "";
+
+        let running = 0, completed = 0;
+
+        data.slice(0, 5).forEach(o => {
+          if (o.status === "processing") running++;
+          if (o.status === "completed") completed++;
+
+          let statusColor = "text-gray-500";
+          if (o.status === "processing") statusColor = "text-yellow-500";
+          if (o.status === "completed") statusColor = "text-green-500";
+          if (o.status === "cancelled") statusColor = "text-red-500";
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="py-2">${o._id}</td>
+            <td>${o.service}</td>
+            <td class="truncate max-w-[200px]">${o.link}</td>
+            <td class="\( {statusColor} font-medium"> \){o.status}</td>
+          `;
+          table.appendChild(tr);
+        });
+
+        document.getElementById("totalOrders").innerText = data.length;
+        document.getElementById("runningOrders").innerText = running;
+        document.getElementById("completedOrders").innerText = completed;
+      } catch (e) {
+        console.log("orders error", e);
+      }
+    }
+
+    /* LOGOUT */
+    function logout() {
+      localStorage.removeItem("token");
+      window.location = "login.html";
+    }
+
+    /* INIT */
+    async function init() {
+      await loadUser();
+      await loadServices();
+      await loadOrders();
+    }
+
+    /* AUTO REFRESH */
+    setInterval(loadUser, 2000);
+    setInterval(loadOrders, 8000);
+
+    /* SIDEBAR MOBILE */
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("show");
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+    });
+
+    init();
+  </script>
 </body>
 </html>
