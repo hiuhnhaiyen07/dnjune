@@ -1,241 +1,391 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth" id="htmlRoot">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Số dư - Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Admin Balance</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-
-body{
-background:#f4f7fb;
-font-family:Inter, sans-serif;
-}
-
-.card{
-background:white;
-border-radius:16px;
-box-shadow:0 8px 20px rgba(0,0,0,.05);
-}
-
-</style>
-
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom right, #f1f5f9, #e2e8f0);
+      transition: background 0.3s ease;
+    }
+    .sidebar {
+      background: linear-gradient(to bottom, #0f172a, #1e293b);
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s ease;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+    }
+    .dark .card {
+      background: #1f2937;
+      color: white;
+    }
+    #overlay {
+      backdrop-filter: blur(6px);
+      transition: opacity 0.4s ease;
+    }
+    .loader {
+      border: 5px solid #e5e7eb;
+      border-top: 5px solid #3b82f6;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+    .dark tr:hover {
+      background-color: #374151;
+    }
+  </style>
 </head>
 
-<body class="p-8">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
 
-<h1 class="text-2xl font-bold mb-6">
-Quản lý số dư user
-</h1>
+<!-- OVERLAY -->
+<div id="overlay" class="fixed inset-0 bg-black/60 z-40 hidden transition-opacity duration-400"></div>
 
-<!-- FORM -->
+<div class="flex h-screen overflow-hidden">
 
-<div class="card p-6 mb-8 max-w-xl">
+  <!-- SIDEBAR - ĐẦY ĐỦ 13 MỤC -->
+  <div id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform -translate-x-full transition-transform duration-400 ease-in-out z-50 md:static md:translate-x-0 shadow-2xl md:shadow-none">
+    <div class="p-6 text-2xl font-bold border-b border-slate-700 flex items-center gap-4">
+      <svg class="w-10 h-10 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+      ADMIN PANEL
+    </div>
 
-<div class="grid gap-4">
+    <nav class="p-5 space-y-2 overflow-y-auto h-[calc(100vh-80px)]">
+      <a href="dashboard.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+        Dashboard
+      </a>
 
-<input id="username"
-placeholder="Username hoặc Email"
-class="border p-3 rounded">
+      <a href="users.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        Users
+      </a>
 
-<input id="amount"
-placeholder="Số tiền"
-type="number"
-class="border p-3 rounded">
+      <a href="balance.html" class="flex items-center px-5 py-4 rounded-xl bg-blue-600/90 text-white font-medium hover:bg-blue-700 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a5 5 0 00-10 0v2m-3 7a3 3 0 003 3h10a3 3 0 003-3v-4a3 3 0 00-3-3H7a3 3 0 00-3 3v4z" /></svg>
+        Balance
+      </a>
 
-<select id="type"
-class="border p-3 rounded">
+      <!-- Các mục còn lại giữ nguyên như file dashboard trước đó -->
 
-<option value="add">
-Cộng tiền
-</option>
+      <div class="pt-8 mt-8 border-t border-slate-700">
+        <button onclick="logout()" class="flex items-center w-full px-5 py-4 rounded-xl text-red-400 hover:bg-red-900/30 transition-colors font-medium">
+          <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Đăng xuất
+        </button>
+      </div>
+    </nav>
+  </div>
 
-<option value="sub">
-Trừ tiền
-</option>
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col overflow-hidden">
 
-</select>
+    <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex items-center justify-between transition-colors duration-300">
+      <div class="flex items-center gap-5">
+        <button id="menuBtn" class="text-3xl text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
+          ☰
+        </button>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Quản lý Số dư User</h1>
+      </div>
 
-<input id="reason"
-placeholder="Lý do"
-class="border p-3 rounded">
+      <div class="flex items-center gap-4">
+        <!-- Dark mode toggle -->
+        <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+          <svg id="sunIcon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a3 3 0 11-8 0 3 3 0 018 0z" /></svg>
+          <svg id="moonIcon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
 
-<button onclick="submitBalance()"
-class="bg-blue-600 text-white py-3 rounded">
+        <!-- Refresh -->
+        <button onclick="loadLogs()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          Refresh
+        </button>
+      </div>
+    </header>
 
-Cập nhật
+    <main class="p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900 flex-1 transition-colors duration-300">
+      <div class="max-w-5xl mx-auto">
 
-</button>
+        <!-- FORM CỘNG/TRỪ TIỀN -->
+        <div class="card p-8 mb-10">
+          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+            <svg class="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a5 5 0 00-10 0v2m-3 7a3 3 0 003 3h10a3 3 0 003-3v-4a3 3 0 00-3-3H7a3 3 0 00-3 3v4z" /></svg>
+            Cập nhật số dư User
+          </h2>
 
-</div>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username hoặc Email</label>
+              <input id="username" placeholder="Nhập username hoặc email" class="w-full border border-gray-300 dark:border-gray-600 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition">
+            </div>
 
-<div id="msg" class="mt-4 text-sm text-blue-600"></div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Số tiền (VND)</label>
+              <input id="amount" type="number" placeholder="Ví dụ: 100000" min="1" class="w-full border border-gray-300 dark:border-gray-600 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition">
+            </div>
 
-</div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Loại giao dịch</label>
+              <select id="type" class="w-full border border-gray-300 dark:border-gray-600 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition">
+                <option value="add">Cộng tiền</option>
+                <option value="sub">Trừ tiền</option>
+              </select>
+            </div>
 
-<!-- TRANSACTIONS -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lý do (tùy chọn)</label>
+              <input id="reason" placeholder="Ví dụ: Admin hỗ trợ" class="w-full border border-gray-300 dark:border-gray-600 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white transition">
+            </div>
 
-<div class="card p-6">
+            <div class="md:col-span-2 flex justify-end">
+              <button onclick="submitBalance()" class="px-8 py-4 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition flex items-center gap-2 shadow-lg">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                Cập nhật số dư
+              </button>
+            </div>
+          </div>
 
-<h2 class="font-semibold mb-4">
-Lịch sử giao dịch
-</h2>
+          <div id="msg" class="mt-6 text-center text-lg font-medium"></div>
+        </div>
 
-<table class="w-full text-sm">
+        <!-- LỊCH SỬ GIAO DỊCH -->
+        <div class="card p-8">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold flex items-center gap-3">
+              <svg class="w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              Lịch sử giao dịch thủ công
+            </h2>
 
-<thead class="border-b">
+            <input id="filterUser" placeholder="Tìm theo username" class="border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white transition">
+          </div>
 
-<tr>
+          <!-- LOADING -->
+          <div id="loading" class="text-center py-20 hidden">
+            <div class="loader mx-auto"></div>
+            <p class="mt-6 text-lg text-gray-500 dark:text-gray-400">Đang tải lịch sử giao dịch...</p>
+          </div>
 
-<th class="text-left py-2">User</th>
-<th>Số tiền</th>
-<th>Loại</th>
-<th>Lý do</th>
-<th>Thời gian</th>
-
-</tr>
-
-</thead>
-
-<tbody id="table"></tbody>
-
-</table>
-
+          <!-- TABLE -->
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-max">
+              <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                  <th class="py-4 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">User</th>
+                  <th class="py-4 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Số tiền</th>
+                  <th class="py-4 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Loại</th>
+                  <th class="py-4 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Lý do</th>
+                  <th class="py-4 px-6 text-left font-semibold text-gray-700 dark:text-gray-300">Thời gian</th>
+                </tr>
+              </thead>
+              <tbody id="table" class="divide-y divide-gray-200 dark:divide-gray-700">
+                <!-- Dữ liệu sẽ render ở đây -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 </div>
 
 <script>
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-const token = localStorage.getItem("token")
+  if (!token) {
+    window.location = "../login.html";
+  }
 
-/* =========================
-   ADD / SUB BALANCE
-========================= */
+  if (user.role !== "admin") {
+    alert("Bạn không có quyền truy cập khu vực Admin!");
+    window.location = "../dashboard.html";
+  }
 
-async function submitBalance(){
+  // Dark mode toggle & persist
+  const htmlRoot = document.getElementById("htmlRoot");
+  const darkToggle = document.getElementById("darkModeToggle");
+  const sunIcon = document.getElementById("sunIcon");
+  const moonIcon = document.getElementById("moonIcon");
 
-const username = document.getElementById("username").value
-const amount = document.getElementById("amount").value
-const type = document.getElementById("type").value
-const reason = document.getElementById("reason").value
+  function toggleDarkMode() {
+    htmlRoot.classList.toggle("dark");
+    localStorage.setItem("darkMode", htmlRoot.classList.contains("dark"));
+    updateIcons();
+  }
 
-const msg = document.getElementById("msg")
+  function updateIcons() {
+    if (htmlRoot.classList.contains("dark")) {
+      moonIcon.classList.remove("hidden");
+      sunIcon.classList.add("hidden");
+    } else {
+      sunIcon.classList.remove("hidden");
+      moonIcon.classList.add("hidden");
+    }
+  }
 
-if(!username || !amount){
-msg.innerText = "Thiếu username hoặc số tiền"
-return
-}
+  if (localStorage.getItem("darkMode") === "true" || (!localStorage.getItem("darkMode") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+    htmlRoot.classList.add("dark");
+  }
+  updateIcons();
 
-try{
+  if (darkToggle) darkToggle.addEventListener("click", toggleDarkMode);
 
-const res = await fetch("/api/admin/manual-balance",{
+  // Sidebar toggle
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
 
-method:"POST",
+  function toggleSidebar() {
+    sidebar.classList.toggle("-translate-x-full");
+    overlay.classList.toggle("hidden");
+  }
 
-headers:{
-"Content-Type":"application/json",
-Authorization:"Bearer "+token
-},
+  menuBtn.addEventListener("click", toggleSidebar);
+  overlay.addEventListener("click", toggleSidebar);
 
-body:JSON.stringify({
-username,
-amount,
-type,
-reason
-})
+  document.querySelectorAll('#sidebar a').forEach(link => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth < 768) toggleSidebar();
+    });
+  });
 
-})
+  // Submit balance
+  async function submitBalance() {
+    const msg = document.getElementById("msg");
+    msg.className = "mt-6 text-center text-lg font-medium";
+    msg.innerText = "";
 
-const data = await res.json()
+    const username = document.getElementById("username").value.trim();
+    const amount = Number(document.getElementById("amount").value);
+    const type = document.getElementById("type").value;
+    const reason = document.getElementById("reason").value.trim();
 
-msg.innerText = data.message || data.error
+    if (!username || isNaN(amount) || amount <= 0) {
+      msg.innerText = "Vui lòng nhập username/email và số tiền hợp lệ!";
+      msg.classList.add("text-red-600");
+      return;
+    }
 
-loadLogs()
+    try {
+      const res = await fetch("/api/admin/manual-balance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({ username, amount, type, reason })
+      });
 
-}catch(e){
+      const data = await res.json();
 
-msg.innerText = "Lỗi server"
+      if (res.ok) {
+        msg.innerText = data.message || "Cập nhật số dư thành công!";
+        msg.classList.add("text-green-600");
+        loadLogs(); // Refresh lịch sử
+      } else {
+        msg.innerText = data.error || "Cập nhật thất bại";
+        msg.classList.add("text-red-600");
+      }
+    } catch (e) {
+      msg.innerText = "Lỗi kết nối server";
+      msg.classList.add("text-red-600");
+      console.error(e);
+    }
+  }
 
-}
+  // Load logs with filter
+  async function loadLogs() {
+    document.getElementById("loading").classList.remove("hidden");
 
-}
+    try {
+      const res = await fetch("/api/admin/transactions", {
+        headers: { Authorization: "Bearer " + token }
+      });
 
-/* =========================
-   LOAD TRANSACTIONS
-========================= */
+      if (res.status === 401) {
+        logout();
+        return;
+      }
 
-async function loadLogs(){
+      if (!res.ok) throw new Error("API error");
 
-try{
+      let logs = await res.json();
 
-const res = await fetch("/api/admin/transactions",{
+      // Filter nếu có input tìm kiếm
+      const filter = document.getElementById("filterUser").value.trim().toLowerCase();
+      if (filter) {
+        logs = logs.filter(l => 
+          (l.userId?.username || "").toLowerCase().includes(filter)
+        );
+      }
 
-headers:{
-Authorization:"Bearer "+token
-}
+      const table = document.getElementById("table");
+      table.innerHTML = "";
 
-})
+      logs.forEach(l => {
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors";
 
-const logs = await res.json()
+        tr.innerHTML = `
+          <td class="py-4 px-6 font-medium">${l.userId?.username || l.userId || 'N/A'}</td>
+          <td class="py-4 px-6 ${l.type === 'add' || l.type === 'admin_add' ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}">
+            ${l.type.includes('add') ? '+' : '-'} ${Number(l.amount).toLocaleString()} VND
+          </td>
+          <td class="py-4 px-6">
+            <span class="px-3 py-1 rounded-full text-xs font-semibold ${l.type.includes('add') ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}">
+              ${l.type}
+            </span>
+          </td>
+          <td class="py-4 px-6">${l.note || l.reason || '-'}</td>
+          <td class="py-4 px-6">${new Date(l.createdAt).toLocaleString('vi-VN')}</td>
+        `;
+        table.appendChild(tr);
+      });
+    } catch (e) {
+      console.error("loadLogs error:", e);
+    } finally {
+      document.getElementById("loading").classList.add("hidden");
+    }
+  }
 
-const table = document.getElementById("table")
+  function logout() {
+    if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi Admin Panel?")) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location = "../login.html";
+    }
+  }
 
-table.innerHTML=""
+  // Khởi động + filter realtime
+  loadLogs();
 
-logs.forEach(l=>{
-
-const tr = document.createElement("tr")
-
-tr.className="border-b"
-
-tr.innerHTML = `
-
-<td class="py-2">
-${l.userId?.username || l.userId}
-</td>
-
-<td>
-${Number(l.amount).toLocaleString()} VND
-</td>
-
-<td>
-${l.type}
-</td>
-
-<td>
-${l.note || ""}
-</td>
-
-<td>
-${new Date(l.createdAt).toLocaleString()}
-</td>
-
-`
-
-table.appendChild(tr)
-
-})
-
-}catch(e){
-
-console.log("Load logs error")
-
-}
-
-}
-
-/* =========================
-   INIT
-========================= */
-
-loadLogs()
-
+  document.getElementById("filterUser").addEventListener("input", loadLogs);
 </script>
 
 </body>
-
 </html>
