@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" class="scroll-smooth">
+<html lang="vi" class="scroll-smooth" id="htmlRoot">
 
 <head>
   <meta charset="UTF-8">
@@ -11,91 +11,132 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(to bottom right, #f1f5f9, #e2e8f0);
     }
     .sidebar {
       background: linear-gradient(to bottom, #0f172a, #1e293b);
     }
     .card {
       background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      transition: all 0.3s ease;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
     .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+    }
+    .dark .card {
+      background: #1f2937;
+      color: white;
     }
     #overlay {
-      backdrop-filter: blur(4px);
-      transition: opacity 0.3s ease;
+      backdrop-filter: blur(6px);
+      transition: opacity 0.4s ease;
     }
     .loader {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3b82f6;
+      border: 5px solid #e5e7eb;
+      border-top: 5px solid #3b82f6;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       animation: spin 1s linear infinite;
-      margin: 0 auto;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    .number-animate {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.8s ease-out;
+    }
+    .number-animate.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 
-<body class="antialiased">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
 
 <!-- OVERLAY -->
-<div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
+<div id="overlay" class="fixed inset-0 bg-black/60 z-40 hidden transition-opacity duration-400"></div>
 
 <div class="flex h-screen overflow-hidden">
 
-  <!-- SIDEBAR -->
-  <div id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform -translate-x-full transition-transform duration-300 ease-in-out z-50 md:static md:translate-x-0">
-    <div class="p-6 text-2xl font-bold border-b border-gray-700 flex items-center gap-3">
-      <svg class="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <!-- SIDEBAR - ĐẦY ĐỦ 13 MỤC -->
+  <div id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform -translate-x-full transition-transform duration-400 ease-in-out z-50 md:static md:translate-x-0 shadow-2xl md:shadow-none">
+    <div class="p-6 text-2xl font-bold border-b border-slate-700 flex items-center gap-4">
+      <svg class="w-10 h-10 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
       ADMIN PANEL
     </div>
 
-    <nav class="p-4 space-y-1 overflow-y-auto">
-      <a href="dashboard.html" class="flex items-center px-4 py-3 rounded-lg bg-blue-600/80 text-white font-medium">
-        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
+    <nav class="p-5 space-y-2 overflow-y-auto h-[calc(100vh-80px)]">
+      <a href="dashboard.html" class="flex items-center px-5 py-4 rounded-xl bg-blue-600/90 text-white font-medium hover:bg-blue-700 transition-all active:scale-95">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
         Dashboard
       </a>
 
-      <a href="users.html" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-800/50 transition-colors">
-        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
+      <a href="users.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
         Users
       </a>
 
-      <a href="balance.html" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-800/50 transition-colors">
-        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a5 5 0 00-10 0v2m-3 7a3 3 0 003 3h10a3 3 0 003-3v-4a3 3 0 00-3-3H7a3 3 0 00-3 3v4z" />
-        </svg>
+      <a href="balance.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a5 5 0 00-10 0v2m-3 7a3 3 0 003 3h10a3 3 0 003-3v-4a3 3 0 00-3-3H7a3 3 0 00-3 3v4z" /></svg>
         Balance
       </a>
 
-      <a href="orders.html" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-800/50 transition-colors">
-        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
+      <a href="orders.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
         Orders
       </a>
 
-      <!-- Các link khác giữ nguyên hoặc thêm tương tự -->
+      <a href="services.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+        Services
+      </a>
 
-      <div class="pt-6 mt-6 border-t border-gray-700">
-        <button onclick="logout()" class="flex items-center w-full px-4 py-3 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors">
-          <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <a href="payments.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2m8 0v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9m8 0H7" /></svg>
+        Payments
+      </a>
+
+      <a href="transactions.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        Transactions
+      </a>
+
+      <a href="tickets.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+        Tickets
+      </a>
+
+      <a href="profit.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-all">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+        Profit
+      </a>
+
+      <a href="logs.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-colors">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        Logs
+      </a>
+
+      <a href="settings.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-colors">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37zM15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        Settings
+      </a>
+
+      <a href="admins.html" class="flex items-center px-5 py-4 rounded-xl hover:bg-slate-700/70 transition-colors">
+        <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM6 5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+        Admins
+      </a>
+
+      <div class="pt-8 mt-8 border-t border-slate-700">
+        <button onclick="logout()" class="flex items-center w-full px-5 py-4 rounded-xl text-red-400 hover:bg-red-900/30 transition-colors font-medium">
+          <svg class="w-6 h-6 mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           Đăng xuất
@@ -107,77 +148,105 @@
   <!-- MAIN CONTENT -->
   <div class="flex-1 flex flex-col overflow-hidden">
 
-    <header class="bg-white shadow-sm p-4 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <!-- Nút 3 gạch luôn hiện -->
-        <button id="menuBtn" class="text-3xl text-gray-700 hover:text-blue-600 transition">
+    <!-- HEADER -->
+    <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex items-center justify-between transition-colors duration-300">
+      <div class="flex items-center gap-5">
+        <button id="menuBtn" class="text-3xl text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
           ☰
         </button>
-        <h1 class="text-xl font-bold text-gray-800">Admin Dashboard</h1>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Admin Dashboard</h1>
       </div>
 
-      <button onclick="loadStats()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-        </svg>
-        Refresh
-      </button>
+      <div class="flex items-center gap-4">
+        <!-- Dark mode toggle -->
+        <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+          <svg id="sunIcon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          <svg id="moonIcon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+
+        <!-- Refresh -->
+        <button onclick="loadStats()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          Refresh
+        </button>
+      </div>
     </header>
 
-    <main class="p-6 overflow-y-auto bg-gray-50 flex-1">
-      <!-- Loading -->
-      <div id="loading" class="text-center py-12 hidden">
+    <!-- MAIN -->
+    <main class="p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900 flex-1 transition-colors duration-300">
+      <div id="loading" class="text-center py-20 hidden">
         <div class="loader mx-auto"></div>
-        <p class="mt-4 text-gray-500">Đang tải dữ liệu...</p>
+        <p class="mt-6 text-lg text-gray-500 dark:text-gray-400">Đang tải dữ liệu hệ thống...</p>
       </div>
 
-      <!-- STATS GRID -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="card p-6">
-          <p class="text-sm text-gray-500">Total Users</p>
-          <h2 id="users" class="text-3xl font-bold text-blue-600 mt-2">0</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
+        <div class="card p-8 text-center number-animate">
+          <svg class="w-12 h-12 mx-auto mb-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
+          <h2 id="users" class="text-4xl font-extrabold text-blue-600 dark:text-blue-400 mt-2">0</h2>
         </div>
 
-        <div class="card p-6">
-          <p class="text-sm text-gray-500">Total Orders</p>
-          <h2 id="orders" class="text-3xl font-bold text-indigo-600 mt-2">0</h2>
+        <div class="card p-8 text-center number-animate">
+          <svg class="w-12 h-12 mx-auto mb-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Total Orders</p>
+          <h2 id="orders" class="text-4xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-2">0</h2>
         </div>
 
-        <div class="card p-6">
-          <p class="text-sm text-gray-500">Total Revenue</p>
-          <h2 id="revenue" class="text-3xl font-bold text-green-600 mt-2">0 VND</h2>
+        <div class="card p-8 text-center number-animate">
+          <svg class="w-12 h-12 mx-auto mb-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Total Revenue</p>
+          <h2 id="revenue" class="text-4xl font-extrabold text-green-600 dark:text-green-400 mt-2">0 VND</h2>
         </div>
 
-        <div class="card p-6">
-          <p class="text-sm text-gray-500">Running Orders</p>
-          <h2 id="runningOrders" class="text-3xl font-bold text-yellow-600 mt-2">0</h2>
+        <div class="card p-8 text-center number-animate">
+          <svg class="w-12 h-12 mx-auto mb-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Running Orders</p>
+          <h2 id="runningOrders" class="text-4xl font-extrabold text-yellow-600 dark:text-yellow-400 mt-2">0</h2>
         </div>
       </div>
 
-      <!-- SYSTEM INFO -->
-      <div class="card p-6">
-        <h2 class="font-bold text-lg mb-4 flex items-center gap-2">
-          <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          Thông tin hệ thống
-        </h2>
-        <div class="space-y-3 text-sm">
-          <div class="flex justify-between">
-            <span class="text-gray-600">API Provider:</span>
-            <span class="font-medium">smmaz.net</span>
+      <!-- SYSTEM INFO & QUICK ACTIONS -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card p-8">
+          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+            <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Thông tin hệ thống
+          </h2>
+          <div class="space-y-4 text-base">
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">API Provider</span>
+              <span class="font-semibold">smmaz.net</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Server Stack</span>
+              <span class="font-semibold">Node.js + Express + MongoDB</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Status</span>
+              <span class="text-green-600 font-bold">Online</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">Last Update</span>
+              <span id="lastUpdate" class="font-semibold">Đang tải...</span>
+            </div>
           </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Server:</span>
-            <span class="font-medium">Node.js + MongoDB</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Status:</span>
-            <span class="text-green-600 font-bold">Online</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Last Update:</span>
-            <span id="lastUpdate" class="font-medium">Đang tải...</span>
+        </div>
+
+        <div class="card p-8">
+          <h2 class="text-2xl font-bold mb-6">Hành động nhanh</h2>
+          <div class="grid grid-cols-2 gap-5">
+            <button onclick="window.location='users.html'" class="bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 p-6 rounded-xl text-center font-medium transition">
+              Quản lý Users
+            </button>
+            <button onclick="window.location='orders.html'" class="bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-800/50 p-6 rounded-xl text-center font-medium transition">
+              Xem Orders
+            </button>
+            <button onclick="window.location='payments.html'" class="bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-800/50 p-6 rounded-xl text-center font-medium transition">
+              Duyệt Nạp tiền
+            </button>
+            <button onclick="window.location='tickets.html'" class="bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-800/50 p-6 rounded-xl text-center font-medium transition">
+              Hỗ trợ Tickets
+            </button>
           </div>
         </div>
       </div>
@@ -186,19 +255,36 @@
 </div>
 
 <script>
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  // Dark mode toggle & persist
+  const htmlRoot = document.getElementById("htmlRoot");
+  const darkToggle = document.getElementById("darkModeToggle");
+  const sunIcon = document.getElementById("sunIcon");
+  const moonIcon = document.getElementById("moonIcon");
 
-  if (!token) {
-    window.location = "../login.html";
+  function toggleDarkMode() {
+    htmlRoot.classList.toggle("dark");
+    localStorage.setItem("darkMode", htmlRoot.classList.contains("dark"));
+    updateIcons();
   }
 
-  if (user.role !== "admin") {
-    alert("Bạn không có quyền truy cập khu vực Admin!");
-    window.location = "../dashboard.html";
+  function updateIcons() {
+    if (htmlRoot.classList.contains("dark")) {
+      moonIcon.classList.remove("hidden");
+      sunIcon.classList.add("hidden");
+    } else {
+      sunIcon.classList.remove("hidden");
+      moonIcon.classList.add("hidden");
+    }
   }
 
-  // Sidebar toggle mượt mà
+  if (localStorage.getItem("darkMode") === "true" || (!localStorage.getItem("darkMode") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+    htmlRoot.classList.add("dark");
+  }
+  updateIcons();
+
+  if (darkToggle) darkToggle.addEventListener("click", toggleDarkMode);
+
+  // Sidebar toggle
   const menuBtn = document.getElementById("menuBtn");
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("overlay");
@@ -211,21 +297,19 @@
   menuBtn.addEventListener("click", toggleSidebar);
   overlay.addEventListener("click", toggleSidebar);
 
-  // Đóng sidebar khi click link trên mobile
   document.querySelectorAll('#sidebar a').forEach(link => {
     link.addEventListener("click", () => {
       if (window.innerWidth < 768) toggleSidebar();
     });
   });
 
-  // Load stats
+  // Load stats with number animation
   async function loadStats() {
-    const loading = document.getElementById("loading");
-    loading.classList.remove("hidden");
+    document.getElementById("loading").classList.remove("hidden");
 
     try {
       const res = await fetch("/api/admin/stats", {
-        headers: { Authorization: "Bearer " + token }
+        headers: { Authorization: "Bearer " + localStorage.getItem("token") }
       });
 
       if (res.status === 401) {
@@ -237,28 +321,42 @@
 
       const data = await res.json();
 
-      document.getElementById("users").innerText = data.users?.toLocaleString() || "0";
-      document.getElementById("orders").innerText = data.orders?.toLocaleString() || "0";
-      document.getElementById("revenue").innerText = Number(data.revenue || 0).toLocaleString() + " VND";
-      document.getElementById("runningOrders").innerText = data.runningOrders?.toLocaleString() || "0";
+      const animateNumber = (el, target) => {
+        let start = 0;
+        const duration = 1500;
+        const step = target / (duration / 16);
+        const timer = setInterval(() => {
+          start += step;
+          if (start >= target) {
+            start = target;
+            clearInterval(timer);
+          }
+          el.innerText = Math.round(start).toLocaleString();
+        }, 16);
+        el.classList.add("visible");
+      };
+
+      animateNumber(document.getElementById("users"), data.users || 0);
+      animateNumber(document.getElementById("orders"), data.orders || 0);
+      animateNumber(document.getElementById("revenue"), Number(data.revenue || 0));
+      animateNumber(document.getElementById("runningOrders"), data.runningOrders || 0);
 
       document.getElementById("lastUpdate").innerText = new Date().toLocaleString("vi-VN");
     } catch (e) {
       console.error("Load stats error:", e);
     } finally {
-      loading.classList.add("hidden");
+      document.getElementById("loading").classList.add("hidden");
     }
   }
 
   function logout() {
-    if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+    if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi Admin Panel?")) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       window.location = "../login.html";
     }
   }
 
-  // Khởi động
   loadStats();
   setInterval(loadStats, 30000);
 </script>
